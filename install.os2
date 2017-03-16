@@ -1,0 +1,362 @@
+Qpdfview _VERSION_ _BUILD_ installation
+
+
+0. CONTENTS OF THIS FILE
+========================
+
+1. INTRODUCTION
+
+2. REQUIREMENTS
+
+3. INSTALLATION
+
+4. BUGREPORTS
+
+5. CREDITS
+
+6. SUPPORT AND DONATIONS
+
+7. HISTORY
+
+
+1. INTRODUCTION
+===============
+
+Welcome to Qpdfview _VERSION_ _BUILD_ port for OS/2 and eComStation.
+
+
+2. REQUIREMENTS
+===============
+
+The following requirements need to be installed.
+
+
+2.1 kLIBC, GCC4Core, Qt4, Zlib, cups
+------------------------------------
+
+The installation of these products can be done either by RPM or ZIP files.
+
+2.1.a RPM installation
+----------------------
+If some packets are already installed, please see if updates for those are
+available with "yum update xyz". Where xyz is the package name.
+
+kLIBC
+-----
+
+  1. yum install libc
+
+GCC4Core
+--------
+
+  1. yum install libgcc1 libgcc-fwd
+  2. yum install libssp
+  3. yum install libstdc++ libstdc++6
+  4. yum install libsupc++ libsupc++6
+
+Qt4 dll
+-------
+
+  1. yum install libqt4
+
+Zlib
+----
+
+  1. yum install zlib
+
+Jpeg, Tiff, Png
+---------------
+
+  1. yum install libjpeg libtiff libpng
+
+poppler
+-------
+
+  1. yum install poppler-qt
+
+djvulibre
+---------
+
+  1. yum install djvulibre-libs
+
+cups
+----
+
+  1. yum install cups
+  2. yum install cups-filters
+
+freetype/fontconfig
+-------------------
+
+  1. yum install freetype fontconfig
+
+libspectre
+----------
+
+  1. yum install libspectre
+
+ghostscript
+-----------
+
+  1. yum install ghostscript
+
+pthread
+-------
+
+  1. yum install pthread
+
+poppler-data
+------------
+(already installed by the poppler rpm)
+
+
+2.1.b ZIP Installation
+----------------------
+
+kLIBC
+-----
+
+  1. Download kLIBC 0.6.6 or better (see http://svn.netlabs.org/libc for more
+     information)
+  2. Install the files to your libpath eg x:\ecs\dll
+
+GCC4Core
+--------
+
+  1. Download GCC4Core 1.3.1 or better from ftp://ftp.netlabs.org/pub/gcc
+  2. Install the files to your libpath eg. x:\ecs\dll
+
+Qt4 dll
+-------
+
+  1. Download Qt4 4.7.3 or better (see http://svn.netlabs.org/qt4 for more 
+     information)
+  2. Install the files according to the readme
+
+Zlib
+----
+
+  1. Download zlib from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install z.dll to your libpath eg. x:\ecs\dll
+
+Jpeg, Tiff, Png
+---------------
+
+  1. Download libjpeg, libtiff and libpng from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install the dll to your libpath eg. x:\ecs\dll
+
+poppler
+-------
+
+  1. Download poppler and poppler-qt from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install the dll to your libpath eg. x:\ecs\dll
+
+djvulibre
+---------
+
+  1. Download djvulibre from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install the dll to your libpath eg. x:\ecs\dll
+
+cups
+----
+
+  1. Go to eCUPS wiki to see how to install eCUPS (http://svn.netlabs.org/ecups)
+  2. Install eCUPS according to the above wiki
+
+freetype/fontconfig
+-------------------
+
+  1. Download freetype and fontconfig from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install freetyp6.dll and fntcfg2.dll to your libpath eg. x:\ecs\dll
+
+libspectre
+----------
+
+  1. Download libspectre from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install the spectre1.dll to your libpath eg. x:\ecs\dll
+
+ghostscript
+-----------
+
+  1. Download ghostscript from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install the gsdll2.dll to your libpath eg. x:\ecs\dll
+
+pthread
+-------
+
+  1. Download pthread from http://rpm.netlabs.org/release/00/zip
+  2. Unpack and install pthr01.dll to your libpath eg. x:\ecs\dll
+ 
+
+poppler-data
+------------
+Optional: to have special fonts working you need poppler-data pack.
+
+  1. extract the 4 directories from the package found on http://poppler.freedesktop.org
+     to your %unixroot%/usr/share/poppler or to the dir where qpdfview.exe is installed
+
+
+3. INSTALLATION
+===============
+          
+To install qpdfview, do the following:
+
+  1. Create a directory for qpdfview.
+  2. Extract the qpdfview package to the new directory.
+  3. Create a WPS object for qdpfview.exe.
+  4. Start qdpfview
+  5. Happy using it
+
+If you also want japanese fonts working, take care that the "Times New Roman WT J"
+font is installed. This font is used as a fallback in poppler.
+
+If you have tried to open a file and not all requirements have been there at
+this try, Qt screwed his plugin cache.
+To overcome that delete %HOME%/.config/Trolltech.ini. It will be created again
+when a Qt app starts.
+ 
+
+4. BUGREPORTS
+=============
+
+Please create bugreports at http://svn.netlabs.org/qtapps
+Only bug reports with a reproducable bug are accepted. :-)
+
+
+5. CREDITS
+==========
+
+The port was done by:
+
+Silvan Scherrer aka _diver
+
+Thanks go to:
+
+  * Dmitriy Kuminov
+
+They either helped me when I had some nasty questions or did some testing for
+me.
+
+
+6. SUPPORT AND DONATIONS
+========================
+
+qpdfview port is based on volunteer work. If you would like to support further
+development, you can do so in one of the following ways:
+
+
+  * Donate to the Qt4 project: see qt.netlabs.org for more information
+
+  * Contribute to the project: Besides actual development, this also includes
+    maintaining the documentation and the project web site as well as help
+    for users.
+
+
+7. HISTORY
+==========
+
+2016-11-23
+  * updated to latest qpdfview 0.4.17 beta1 source
+
+2016-09-06
+  * libspectre available as rpm now
+
+2016-09-05
+  * djvulibre and cups available as rpm now
+
+2016-02-18
+  * ghostscript available as rpm now
+
+2015-12-03
+  * updated gcc4core reference to version 1.3.1
+
+2015-11-17
+  * updated to latest qpdfview 0.4.16 source
+
+2015-06-11
+  * updated to latest qpdfview 0.4.15 source
+
+2015-03-09
+  * updated install.os2 (rephrased the installation instructions)
+
+2015-02-24
+  * updated to latest qpdfview 0.4.14 source
+
+2014-12-16
+  * updated to latest qpdfview 0.4.13 source
+  * updated install.os2 (poppler-data as rpm available)
+
+2014-10-10
+  * updated install.os2 (some more dll as rpm available)
+  * updated to latest qpdfview 0.4.12 source
+
+2014-05-15
+  * updated to latest qpdfview 0.4.10 source
+
+2014-04-30
+  * updated to latest poppler 0.26.0
+
+2014-04-02
+  * updated to latest qpdfview 0.4.9 source
+
+2014-02-18
+  * updated to latest qpdfview 0.4.8 source
+
+2013-12-03
+  * updated to latest qpdfview 0.4.7 source
+
+2013-11-29
+  * updated to latest poppler 0.24.4
+
+2013-10-15
+  * updated to latest qpdfview 0.4.6 source
+
+2013-08-14
+  * updated to latest qpdfview 0.4.4.99 source
+  * updated to latest poppler 0.24.0
+
+2013-06-17
+  * added .ps and .eps file support
+
+2013-05-27
+  * updated to latest qpdfview 0.4.3 source
+
+2013-05-14
+  * updated to latest qpdfview 0.4.3 beta source
+
+2013-04-25
+  * updated to latest poppler 0.22.3
+
+2013-04-19
+  * updated to latest qpdfview 0.4.2 beta source
+
+2013-03-25
+  * updated to latest qpdfview 0.4.1 source
+
+2013-03-20
+  * updated to latest qpdfview 0.4.1 beta source
+
+2013-02-19
+  * updated to latest qpdfview 0.4.0 source
+
+2013-02-12
+  * updated to latest qpdfview 0.4.0 beta1 source
+
+2013-02-06
+  * updated to latest qpdfview 0.3.7 source
+
+2013-01-14
+  * updated to latest poppler 0.22.0
+
+2012-12-13
+  * updated to latest qpdfview 0.3.7 beta 1 source
+
+2012-11-27
+  * updated to latest qpdfview source
+
+2012-10-29
+  * created install.os2
+  * updated qpdfview to contain a icon (thx Herwig)
+
+2012-10-24
+  * first public port
