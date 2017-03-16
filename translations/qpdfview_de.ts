@@ -674,7 +674,7 @@
     <message>
         <location filename="../sources/mainwindow.cpp" line="2026"/>
         <source>&lt;/ul&gt;&lt;p&gt;See &lt;a href=&quot;https://launchpad.net/qpdfview&quot;&gt;launchpad.net/qpdfview&lt;/a&gt; for more information.&lt;/p&gt;&lt;p&gt;&amp;copy; 2012-2016 The qpdfview developers&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;/ul&gt;&lt;p&gt;Siehe &lt;a href=&quot;https://launchpad.net/qpdfview&quot;&gt;launchpad.net/qpdfview&lt;/a&gt; für weitere Informationen.&lt;/p&gt;&lt;p&gt;&amp;copy; 2012-2015 Die qpdfview-Entwickler&lt;/p&gt; {2012-2016 ?}</translation>
+        <translation type="unfinished">&lt;/ul&gt;&lt;p&gt;Siehe &lt;a href=&quot;https://launchpad.net/qpdfview&quot;&gt;launchpad.net/qpdfview&lt;/a&gt; für weitere Informationen.&lt;/p&gt;&lt;p&gt;&amp;copy; 2012-2016 Die qpdfview-Entwickler&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../sources/mainwindow.cpp" line="2907"/>
