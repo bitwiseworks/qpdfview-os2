@@ -22,13 +22,16 @@ Qpdfview _VERSION_ _BUILD_ installation
 1. INTRODUCTION
 ===============
 
-Welcome to Qpdfview _VERSION_ _BUILD_ port for OS/2 and eComStation.
+Welcome to Qpdfview _VERSION_ _BUILD_ port for OS/2 and OS/2 based systems.
 
 
 2. REQUIREMENTS
 ===============
 
-The following requirements need to be installed.
+If you installed qpdfview via rpm either with yum install qpdfview or ANPM,
+then the below requirements are already installed.
+
+The following requirements need to be installed only if you use qpdfview.zip
 
 
 2.1 kLIBC, GCC4Core, Qt4, Zlib, cups
@@ -199,7 +202,7 @@ Optional: to have special fonts working you need poppler-data pack.
 3. INSTALLATION
 ===============
           
-To install qpdfview, do the following:
+If qpdfview wasn't installed by rpm, follow the next 5 steps to install it:
 
   1. Create a directory for qpdfview.
   2. Extract the qpdfview package to the new directory.
@@ -219,7 +222,7 @@ when a Qt app starts.
 4. BUGREPORTS
 =============
 
-Please create bugreports at http://svn.netlabs.org/qtapps
+Please create bugreports at https://github.com/bitwiseworks/qpdfview/issues
 Only bug reports with a reproducable bug are accepted. :-)
 
 
@@ -245,15 +248,20 @@ qpdfview port is based on volunteer work. If you would like to support further
 development, you can do so in one of the following ways:
 
 
-  * Donate to the Qt4 project: see qt.netlabs.org for more information
+  * Donate to the project via the bww bitwise works GmbH shop:
+    http://www.bitwiseworks.com/shop
 
-  * Contribute to the project: Besides actual development, this also includes
-    maintaining the documentation and the project web site as well as help
-    for users.
+  * Contribute to the project:
+    Besides actual development, this also includes maintaining the
+    documentation and the project web site as well as help for users.
 
 
 7. HISTORY
 ==========
+
+2017-03-17 (hapy birthday Monika)
+  * moved repository to github
+  * adjusted this file to reflect the possibility to install qpdfview via rpm
 
 2016-11-23
   * updated to latest qpdfview 0.4.17 beta1 source
