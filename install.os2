@@ -259,6 +259,9 @@ development, you can do so in one of the following ways:
 7. HISTORY
 ==========
 
+2018-06-18
+  * fixed a umlaut issue when printing
+
 2017-03-17 (hapy birthday Monika)
   * moved repository to github
   * adjusted this file to reflect the possibility to install qpdfview via rpm

@@ -2456,7 +2456,7 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
         return false;
     }
 
-    jobId = cupsPrintFile(dest->name, temporaryFile.fileName().toLocal8Bit(), m_fileInfo.completeBaseName().toLocal8Bit(), num_options, options);
+    jobId = cupsPrintFile(dest->name, temporaryFile.fileName().toLocal8Bit(), m_fileInfo.completeBaseName().toUtf8(), num_options, options);
 
     if(jobId < 1)
     {
