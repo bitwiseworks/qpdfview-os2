@@ -13,10 +13,11 @@
 /* version 0.2.3 from 29.09.2014 Silvan (don't copy the poppler*.dll) */
 /* version 1.0.0 from 05.09.2016 Silvan (don't copy the djvu*.dll) */
 /* version 1.0.1 from 06.09.2016 Silvan (don't copy the spectre*.dll) */
+/* version 1.0.2 from 18.06.2018 Silvan (use unixshell) */
 
 /* init the version string (don't forget to change) */
-version = "1.0.1"
-version_date = "06.09.2016"
+version = "1.0.2"
+version_date = "18.06.2018"
 '@echo off'
 
 parse arg command option
@@ -38,6 +39,8 @@ qOutFile   = buildDir||'\qmake.out'
 mErrorFile = buildDir||'\make.err'
 mOutFile   = buildDir||'\make.out'
 qt4bin = '%unixroot%\usr\lib\qt4\bin\'
+address cmd 'SET QMAKE_SH=sh'
+address cmd 'SET FAST_BUILD=1'
 
 /* get the Qpdfview version */
 Qpdfview_version = '0.0.0'
