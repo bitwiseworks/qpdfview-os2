@@ -1,6 +1,7 @@
 /*
 
-Copyright 2012-2013 Adam Reichold
+Copyright 2018 Marshall Banana
+Copyright 2012-2013, 2018 Adam Reichold
 Copyright 2014 Dorian Scholz
 Copyright 2012 Michał Trybus
 Copyright 2013 Chris Young
@@ -43,6 +44,16 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef WITH_SYNCTEX
 
 #include <synctex_parser.h>
+
+#ifndef HAS_SYNCTEX_2
+
+typedef synctex_scanner_t synctex_scanner_p;
+typedef synctex_node_t synctex_node_p;
+
+#define synctex_scanner_next_result(scanner) synctex_next_result(scanner)
+#define synctex_display_query(scanner, file, line, column, page) synctex_display_query(scanner, file, line, column)
+
+#endif // HAS_SYNCTEX_2
 
 #endif // WITH_SYNCTEX
 
@@ -103,26 +114,35 @@ QList< File > files;
 
 MainWindow* mainWindow = 0;
 
-void loadTranslators()
+bool loadTranslator(QTranslator* const translator, const QString& fileName, const QString& path)
 {
-    QTranslator* toolkitTranslator = new QTranslator(qApp);
-    QTranslator* applicationTranslator = new QTranslator(qApp);
-
 #if QT_VERSION >= QT_VERSION_CHECK(4,8,0)
 
-    if(toolkitTranslator->load(QLocale::system(), "qt", "_", QLibraryInfo::location(QLibraryInfo::TranslationsPath))) { qApp->installTranslator(toolkitTranslator); }
-
-    if(applicationTranslator->load(QLocale::system(), "qpdfview", "_", QDir(QApplication::applicationDirPath()).filePath("data"))) { qApp->installTranslator(applicationTranslator); }
-    else if(applicationTranslator->load(QLocale::system(), "qpdfview", "_", DATA_INSTALL_PATH)) { qApp->installTranslator(applicationTranslator); }
+    const bool ok = translator->load(QLocale::system(), fileName, "_", path);
 
 #else
 
-    if(toolkitTranslator->load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath))) { qApp->installTranslator(toolkitTranslator); }
-
-    if(applicationTranslator->load("qpdfview_" + QLocale::system().name(), QDir(QApplication::applicationDirPath()).filePath("data"))) { qApp->installTranslator(applicationTranslator); }
-    else if(applicationTranslator->load("qpdfview_" + QLocale::system().name(), DATA_INSTALL_PATH)) { qApp->installTranslator(applicationTranslator); }
+    const bool ok = translator->load(fileName + "_" + QLocale::system().name(), path);
 
 #endif // QT_VERSION
+
+    if(ok)
+    {
+        qApp->installTranslator(translator);
+    }
+
+    return ok;
+}
+
+void loadTranslators()
+{
+    QTranslator* toolkitTranslator = new QTranslator(qApp);
+    loadTranslator(toolkitTranslator, "qt", QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+
+    QTranslator* applicationTranslator = new QTranslator(qApp);
+    if(loadTranslator(applicationTranslator, "qpdfview", QDir(QApplication::applicationDirPath()).filePath("data"))) {}
+    else if(loadTranslator(applicationTranslator, "qpdfview", DATA_INSTALL_PATH)) {}
+    else if(loadTranslator(applicationTranslator, "qpdfview", ":/")) {}
 }
 
 void parseCommandLineArguments()
@@ -316,13 +336,11 @@ void resolveSourceReferences()
 
         if(!file.sourceName.isNull())
         {
-            synctex_scanner_t scanner = synctex_scanner_new_with_output_file(file.filePath.toLocal8Bit(), 0, 1);
-
-            if(scanner != 0)
+            if(synctex_scanner_p scanner = synctex_scanner_new_with_output_file(file.filePath.toLocal8Bit(), 0, 1))
             {
-                if(synctex_display_query(scanner, file.sourceName.toLocal8Bit(), file.sourceLine, file.sourceColumn) > 0)
+                if(synctex_display_query(scanner, file.sourceName.toLocal8Bit(), file.sourceLine, file.sourceColumn, -1) > 0)
                 {
-                    for(synctex_node_t node = synctex_next_result(scanner); node != 0; node = synctex_next_result(scanner))
+                    for(synctex_node_p node = synctex_scanner_next_result(scanner); node != 0; node = synctex_scanner_next_result(scanner))
                     {
                         int page = synctex_node_page(node);
                         QRectF enclosingBox(synctex_node_box_visible_h(node), synctex_node_box_visible_v(node), synctex_node_box_visible_width(node), synctex_node_box_visible_height(node));

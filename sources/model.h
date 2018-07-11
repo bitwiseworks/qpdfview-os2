@@ -84,7 +84,7 @@ namespace Model
         Q_OBJECT
 
     public:
-        Annotation() : QObject() {}
+        Annotation(QObject* parent = 0) : QObject(parent) {}
         virtual ~Annotation() {}
 
         virtual QRectF boundary() const = 0;
@@ -102,7 +102,7 @@ namespace Model
         Q_OBJECT
 
     public:
-        FormField() : QObject() {}
+        FormField(QObject* parent = 0) : QObject(parent) {}
         virtual ~FormField() {}
 
         virtual QRectF boundary() const = 0;
@@ -122,7 +122,7 @@ namespace Model
 
         virtual QSizeF size() const = 0;
 
-        virtual QImage render(qreal horizontalResolution = 72.0, qreal verticalResolution = 72.0, Rotation rotation = RotateBy0, const QRect& boundingRect = QRect()) const = 0;
+        virtual QImage render(qreal horizontalResolution = 72.0, qreal verticalResolution = 72.0, Rotation rotation = RotateBy0, QRect boundingRect = QRect()) const = 0;
 
         virtual QString label() const { return QString(); }
 
@@ -174,10 +174,10 @@ namespace Model
             ExpansionRole
         };
 
-        virtual Outline loadOutline() const { return Outline(); }
-        virtual Properties loadProperties() const { return Properties(); }
+        virtual Outline outline() const { return Outline(); }
+        virtual Properties properties() const { return Properties(); }
 
-        virtual QAbstractItemModel* loadFonts() const { return 0; }
+        virtual QAbstractItemModel* fonts() const { return 0; }
 
         virtual bool wantsContinuousMode() const { return false; }
         virtual bool wantsSinglePageMode() const { return false; }
