@@ -259,6 +259,9 @@ development, you can do so in one of the following ways:
 7. HISTORY
 ==========
 
+2018-07-11
+  * updated to latest qpdfview 0.4.17 trunk (beta2) source
+
 2018-06-18
   * fixed a umlaut issue when printing
 
