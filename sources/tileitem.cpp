@@ -43,7 +43,7 @@ Settings* TileItem::s_settings = 0;
 
 QCache< TileItem::CacheKey, TileItem::CacheObject > TileItem::s_cache;
 
-TileItem::TileItem(PageItem* page) : RenderTaskDispatcher::Parent(),
+TileItem::TileItem(PageItem* page) : RenderTaskParent(),
     m_page(page),
     m_rect(),
     m_cropRect(),
@@ -84,7 +84,7 @@ void TileItem::setCropRect(const QRectF& cropRect)
 
 void TileItem::dropCachedPixmaps(PageItem* page)
 {
-    foreach(CacheKey key, s_cache.keys())
+    foreach(const CacheKey& key, s_cache.keys())
     {
         if(key.first == page)
         {
@@ -93,7 +93,7 @@ void TileItem::dropCachedPixmaps(PageItem* page)
     }
 }
 
-bool TileItem::paint(QPainter* painter, const QPointF& topLeft)
+bool TileItem::paint(QPainter* painter, QPointF topLeft)
 {
     const QPixmap& pixmap = takePixmap();
 
@@ -200,24 +200,13 @@ void TileItem::deleteAfterRender()
     }
 }
 
-void TileItem::on_finished()
-{
-    if(m_deleteAfterRender)
-    {
-        m_renderTask.deleteParentLater();
-    }
-    else if(!m_page->useTiling() || m_page->m_exposedTileItems.contains(this))
-    {
-        m_page->update();
-    }
-}
-
-void TileItem::on_imageReady(const RenderParam& renderParam,
-                             const QRect& rect, bool prefetch,
-                             const QImage& image, const QRectF& cropRect)
+void TileItem::on_finished(const RenderParam& renderParam,
+                           const QRect& rect, bool prefetch,
+                           const QImage& image, const QRectF& cropRect)
 {
     if(m_page->m_renderParam != renderParam || m_rect != rect)
     {
+        on_finishedOrCanceled();
         return;
     }
 
@@ -227,6 +216,7 @@ void TileItem::on_imageReady(const RenderParam& renderParam,
     {
         m_pixmapError = true;
 
+        on_finishedOrCanceled();
         return;
     }
 
@@ -243,6 +233,25 @@ void TileItem::on_imageReady(const RenderParam& renderParam,
         m_pixmap = QPixmap::fromImage(image);
 
         setCropRect(cropRect);
+    }
+
+    on_finishedOrCanceled();
+}
+
+void TileItem::on_canceled()
+{
+    on_finishedOrCanceled();
+}
+
+void TileItem::on_finishedOrCanceled()
+{
+    if(m_deleteAfterRender)
+    {
+        m_renderTask.deleteParentLater();
+    }
+    else if(!m_page->useTiling() || m_page->m_exposedTileItems.contains(this))
+    {
+        m_page->update();
     }
 }
 

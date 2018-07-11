@@ -67,6 +67,12 @@ SOURCES += \
 
 DEFINES += APPLICATION_VERSION=\\\"$${APPLICATION_VERSION}\\\"
 
+with_lto {
+    QMAKE_CFLAG += -flto
+    QMAKE_CXXFLAGS += -flto
+    QMAKE_LFLAGS += -flto
+}
+
 QT += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent widgets printsupport
@@ -88,7 +94,14 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += concurrent widgets printsupport
     QT += dbus
 }
 
+isEmpty(QMAKE_EXTENSION_SHLIB):QMAKE_EXTENSION_SHLIB = "so"
+isEmpty(QMAKE_EXTENSION_STATICLIB):QMAKE_EXTENSION_STATICLIB = "a"
+
 DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
+
+plugin_resolve_all {
+    DEFINES += PLUGIN_RESOLVE_ALL
+}
 
 !without_pdf {
     DEFINES += WITH_PDF
@@ -97,10 +110,10 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
     DEFINES += POPPLER_VERSION=\\\"$${POPPLER_VERSION}\\\"
 
     static_pdf_plugin {
-        isEmpty(PDF_PLUGIN_NAME):PDF_PLUGIN_NAME = libqpdfview_pdf.a
+        isEmpty(PDF_PLUGIN_NAME):PDF_PLUGIN_NAME = $${QMAKE_PREFIX_STATICLIB}qpdfview_pdf.$${QMAKE_EXTENSION_STATICLIB}
 
         DEFINES += STATIC_PDF_PLUGIN
-        LIBS += $$PDF_PLUGIN_NAME
+        LIBS += $$PDF_PLUGIN_NAME $$PDF_PLUGIN_LIBS
         PRE_TARGETDEPS += $$PDF_PLUGIN_NAME
 
         QT += xml
@@ -110,7 +123,7 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
             PKGCONFIG += poppler-qt$${QT_MAJOR_VERSION}
         }
     } else {
-        isEmpty(PDF_PLUGIN_NAME):PDF_PLUGIN_NAME = libqpdfview_pdf.so
+        isEmpty(PDF_PLUGIN_NAME):PDF_PLUGIN_NAME = $${QMAKE_PREFIX_SHLIB}qpdfview_pdf.$${QMAKE_EXTENSION_SHLIB}
     }
 
     DEFINES += PDF_PLUGIN_NAME=\\\"$${PDF_PLUGIN_NAME}\\\"
@@ -123,10 +136,10 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
     DEFINES += LIBSPECTRE_VERSION=\\\"$${LIBSPECTRE_VERSION}\\\"
 
     static_ps_plugin {
-        isEmpty(PS_PLUGIN_NAME):PS_PLUGIN_NAME = libqpdfview_ps.a
+        isEmpty(PS_PLUGIN_NAME):PS_PLUGIN_NAME = $${QMAKE_PREFIX_STATICLIB}qpdfview_ps.$${QMAKE_EXTENSION_STATICLIB}
 
         DEFINES += STATIC_PS_PLUGIN
-        LIBS += $$PS_PLUGIN_NAME
+        LIBS += $$PS_PLUGIN_NAME $$PS_PLUGIN_LIBS
         PRE_TARGETDEPS += $$PS_PLUGIN_NAME
 
         !without_pkgconfig {
@@ -134,7 +147,7 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
             PKGCONFIG += libspectre
         }
     } else {
-        isEmpty(PS_PLUGIN_NAME):PS_PLUGIN_NAME = libqpdfview_ps.so
+        isEmpty(PS_PLUGIN_NAME):PS_PLUGIN_NAME = $${QMAKE_PREFIX_SHLIB}qpdfview_ps.$${QMAKE_EXTENSION_SHLIB}
     }
 
     DEFINES += PS_PLUGIN_NAME=\\\"$${PS_PLUGIN_NAME}\\\"
@@ -147,10 +160,10 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
     DEFINES += DJVULIBRE_VERSION=\\\"$${DJVULIBRE_VERSION}\\\"
 
     static_djvu_plugin {
-        isEmpty(DJVU_PLUGIN_NAME):DJVU_PLUGIN_NAME = libqpdfview_djvu.a
+        isEmpty(DJVU_PLUGIN_NAME):DJVU_PLUGIN_NAME = $${QMAKE_PREFIX_STATICLIB}qpdfview_djvu.$${QMAKE_EXTENSION_STATICLIB}
 
         DEFINES += STATIC_DJVU_PLUGIN
-        LIBS += $$DJVU_PLUGIN_NAME
+        LIBS += $$DJVU_PLUGIN_NAME $$DJVU_PLUGIN_LIBS
         PRE_TARGETDEPS += $$DJVU_PLUGIN_NAME
 
         !without_pkgconfig {
@@ -158,7 +171,7 @@ DEFINES += PLUGIN_INSTALL_PATH=\\\"$${PLUGIN_INSTALL_PATH}\\\"
             PKGCONFIG += ddjvuapi
         }
     } else {
-        isEmpty(DJVU_PLUGIN_NAME):DJVU_PLUGIN_NAME = libqpdfview_djvu.so
+        isEmpty(DJVU_PLUGIN_NAME):DJVU_PLUGIN_NAME = $${QMAKE_PREFIX_SHLIB}qpdfview_djvu.$${QMAKE_EXTENSION_SHLIB}
     }
 
     DEFINES += DJVU_PLUGIN_NAME=\\\"$${DJVU_PLUGIN_NAME}\\\"
@@ -170,10 +183,10 @@ with_fitz {
     DEFINES += FITZ_VERSION=\\\"$${FITZ_VERSION}\\\"
 
     static_fitz_plugin {
-        isEmpty(FITZ_PLUGIN_NAME):FITZ_PLUGIN_NAME = libqpdfview_fitz.a
+        isEmpty(FITZ_PLUGIN_NAME):FITZ_PLUGIN_NAME = $${QMAKE_PREFIX_STATICLIB}qpdfview_fitz.$${QMAKE_EXTENSION_STATICLIB}
 
         DEFINES += STATIC_FITZ_PLUGIN
-        LIBS += $$FITZ_PLUGIN_NAME
+        LIBS += $$FITZ_PLUGIN_NAME $$FITZ_PLUGIN_LIBS
         PRE_TARGETDEPS += $$FITZ_PLUGIN_NAME
 
         isEmpty(FITZ_PLUGIN_LIBS) {
@@ -182,7 +195,7 @@ with_fitz {
             LIBS += $$FITZ_PLUGIN_LIBS
         }
     } else {
-        isEmpty(FITZ_PLUGIN_NAME):FITZ_PLUGIN_NAME = libqpdfview_fitz.so
+        isEmpty(FITZ_PLUGIN_NAME):FITZ_PLUGIN_NAME = $${QMAKE_PREFIX_SHLIB}qpdfview_fitz.$${QMAKE_EXTENSION_SHLIB}
     }
 
     DEFINES += FITZ_PLUGIN_NAME=\\\"$${FITZ_PLUGIN_NAME}\\\"
@@ -192,14 +205,14 @@ with_fitz {
     DEFINES += WITH_IMAGE
 
     static_image_plugin {
-        isEmpty(IMAGE_PLUGIN_NAME):IMAGE_PLUGIN_NAME = libqpdfview_image.a
+        isEmpty(IMAGE_PLUGIN_NAME):IMAGE_PLUGIN_NAME = $${QMAKE_PREFIX_STATICLIB}qpdfview_image.$${QMAKE_EXTENSION_STATICLIB}
 
         DEFINES += STATIC_IMAGE_PLUGIN
-        LIBS += $$IMAGE_PLUGIN_NAME
+        LIBS += $$IMAGE_PLUGIN_NAME $$IMAGE_PLUGIN_LIBS
         PRE_TARGETDEPS += $$IMAGE_PLUGIN_NAME
     }
     else {
-        isEmpty(IMAGE_PLUGIN_NAME):IMAGE_PLUGIN_NAME = libqpdfview_image.so
+        isEmpty(IMAGE_PLUGIN_NAME):IMAGE_PLUGIN_NAME = $${QMAKE_PREFIX_SHLIB}qpdfview_image.$${QMAKE_EXTENSION_SHLIB}
     }
 
     DEFINES += IMAGE_PLUGIN_NAME=\\\"$${IMAGE_PLUGIN_NAME}\\\"
@@ -221,6 +234,8 @@ with_fitz {
     !without_pkgconfig:system(pkg-config --exists synctex) {
         CONFIG += link_pkgconfig
         PKGCONFIG += synctex
+
+        system(pkg-config --atleast-version=1.19 synctex):DEFINES += HAS_SYNCTEX_2
     } else {
         HEADERS += synctex/synctex_parser.h synctex/synctex_parser_utils.h synctex/synctex_parser_local.h
         SOURCES += synctex/synctex_parser.c synctex/synctex_parser_utils.c
@@ -240,6 +255,11 @@ lessThan(QT_MAJOR_VERSION, 5) : !without_magic {
 
     HEADERS += sources/signalhandler.h
     SOURCES += sources/signalhandler.cpp
+}
+
+
+static_resources {
+    RESOURCES += help.qrc translations.qrc
 }
 
 DEFINES += DATA_INSTALL_PATH=\\\"$${DATA_INSTALL_PATH}\\\"

@@ -2,8 +2,9 @@
 
 Copyright 2014 S. Razi Alavizadeh
 Copyright 2013 Thomas Etter
-Copyright 2012-2015 Adam Reichold
+Copyright 2012-2015, 2018 Adam Reichold
 Copyright 2014 Dorian Scholz
+Copyright 2018 Egor Zenkov
 
 This file is part of qpdfview.
 
@@ -54,6 +55,15 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef WITH_SYNCTEX
 
 #include <synctex_parser.h>
+
+#ifndef HAS_SYNCTEX_2
+
+typedef synctex_scanner_t synctex_scanner_p;
+typedef synctex_node_t synctex_node_p;
+
+#define synctex_scanner_next_result(scanner) synctex_next_result(scanner)
+
+#endif // HAS_SYNCTEX_2
 
 #endif // WITH_SYNCTEX
 
@@ -240,15 +250,15 @@ int addCMYKorRGBColorModel(cups_dest_t* dest, int num_options, cups_option_t** o
 
 #ifdef WITH_SYNCTEX
 
-DocumentView::SourceLink scanForSourceLink(const QString& filePath, const int page, const QPointF& pos)
+DocumentView::SourceLink scanForSourceLink(const QString& filePath, const int page, QPointF pos)
 {
     DocumentView::SourceLink sourceLink;
 
-    if(synctex_scanner_t scanner = synctex_scanner_new_with_output_file(filePath.toLocal8Bit(), 0, 1))
+    if(synctex_scanner_p scanner = synctex_scanner_new_with_output_file(filePath.toLocal8Bit(), 0, 1))
     {
         if(synctex_edit_query(scanner, page, pos.x(), pos.y()) > 0)
         {
-            for(synctex_node_t node = synctex_next_result(scanner); node != 0; node = synctex_next_result(scanner))
+            for(synctex_node_p node = synctex_scanner_next_result(scanner); node != 0; node = synctex_scanner_next_result(scanner))
             {
                 sourceLink.name = QString::fromLocal8Bit(synctex_scanner_get_name(scanner, synctex_node_tag(node)));
                 sourceLink.line = qMax(synctex_node_line(node), 0);
@@ -265,7 +275,7 @@ DocumentView::SourceLink scanForSourceLink(const QString& filePath, const int pa
 
 #endif // WITH_SYNCTEX
 
-inline bool modifiersAreActive(const QWheelEvent* event, const Qt::KeyboardModifiers& modifiers)
+inline bool modifiersAreActive(const QWheelEvent* event, Qt::KeyboardModifiers modifiers)
 {
     if(modifiers == Qt::NoModifier)
     {
@@ -623,9 +633,14 @@ void addFileProperties(Model::Properties& properties, const QFileInfo& fileInfo)
     addProperty(properties, "File group", fileInfo.owner());
 }
 
-void saveExpandedPaths(const QAbstractItemModel* model, QSet< QString >& paths, const QModelIndex& index, QString path)
+void appendToPath(const QModelIndex& index, QByteArray& path)
 {
-    path += index.data(Qt::DisplayRole).toString();
+    path.append(index.data(Qt::DisplayRole).toByteArray()).append('\0');
+}
+
+void saveExpandedPaths(const QAbstractItemModel* model, QSet< QByteArray >& paths, const QModelIndex& index = QModelIndex(), QByteArray path = QByteArray())
+{
+    appendToPath(index, path);
 
     if(model->data(index, Model::Document::ExpansionRole).toBool())
     {
@@ -638,9 +653,9 @@ void saveExpandedPaths(const QAbstractItemModel* model, QSet< QString >& paths, 
     }
 }
 
-void restoreExpandedPaths(QAbstractItemModel* model, const QSet< QString >& paths, const QModelIndex& index, QString path)
+void restoreExpandedPaths(QAbstractItemModel* model, const QSet< QByteArray >& paths, const QModelIndex& index = QModelIndex(), QByteArray path = QByteArray())
 {
-    path += index.data(Qt::DisplayRole).toString();
+    appendToPath(index, path);
 
     if(paths.contains(path))
     {
@@ -657,6 +672,27 @@ void restoreExpandedPaths(QAbstractItemModel* model, const QSet< QString >& path
 
 namespace qpdfview
 {
+
+class DocumentView::VerticalScrollBarChangedBlocker
+{
+    Q_DISABLE_COPY(VerticalScrollBarChangedBlocker)
+
+private:
+    DocumentView* const that;
+
+public:
+
+    VerticalScrollBarChangedBlocker(DocumentView* that) : that(that)
+    {
+        that->m_verticalScrollBarChangedBlocked = true;
+    }
+
+    ~VerticalScrollBarChangedBlocker()
+    {
+        that->m_verticalScrollBarChangedBlocked = false;
+    }
+
+};
 
 Settings* DocumentView::s_settings = 0;
 ShortcutHandler* DocumentView::s_shortcutHandler = 0;
@@ -690,6 +726,7 @@ DocumentView::DocumentView(QWidget* parent) : QGraphicsView(parent),
     m_thumbnailsScene(0),
     m_outlineModel(0),
     m_propertiesModel(0),
+    m_verticalScrollBarChangedBlocked(false),
     m_currentResult(),
     m_searchTask(0)
 {
@@ -710,10 +747,11 @@ DocumentView::DocumentView(QWidget* parent) : QGraphicsView(parent),
 
     setScene(new QGraphicsScene(this));
 
+    setFocusPolicy(Qt::StrongFocus);
     setAcceptDrops(false);
     setDragMode(QGraphicsView::ScrollHandDrag);
 
-    reconnectVerticalScrollBar();
+    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_verticalScrollBar_valueChanged()));
 
     m_thumbnailsScene = new QGraphicsScene(this);
 
@@ -1215,7 +1253,7 @@ void DocumentView::setRubberBandMode(RubberBandMode rubberBandMode)
     }
 }
 
-void DocumentView::setThumbnailsViewportSize(const QSize& thumbnailsViewportSize)
+void DocumentView::setThumbnailsViewportSize(QSize thumbnailsViewportSize)
 {
     if(m_thumbnailsViewportSize != thumbnailsViewportSize)
     {
@@ -1235,9 +1273,23 @@ void DocumentView::setThumbnailsOrientation(Qt::Orientation thumbnailsOrientatio
     }
 }
 
+QSet< QByteArray > DocumentView::saveExpandedPaths() const
+{
+    QSet< QByteArray > expandedPaths;
+
+    ::saveExpandedPaths(m_outlineModel.data(), expandedPaths);
+
+    return expandedPaths;
+}
+
+void DocumentView::restoreExpandedPaths(const QSet< QByteArray >& expandedPaths)
+{
+    ::restoreExpandedPaths(m_outlineModel.data(), expandedPaths);
+}
+
 QAbstractItemModel* DocumentView::fontsModel() const
 {
-    return m_document->loadFonts();
+    return m_document->fonts();
 }
 
 bool DocumentView::searchWasCanceled() const
@@ -1285,6 +1337,11 @@ QPair< QString, QString > DocumentView::searchContext(int page, const QRectF& re
     return qMakePair(matchedText, surroundingText);
 }
 
+bool DocumentView::hasSearchResults()
+{
+    return s_searchModel->hasResults(this);
+}
+
 QString DocumentView::resolveFileName(QString fileName) const
 {
     if(QFileInfo(fileName).isRelative())
@@ -1307,7 +1364,7 @@ QUrl DocumentView::resolveUrl(QUrl url) const
     return url;
 }
 
-DocumentView::SourceLink DocumentView::sourceLink(const QPoint& pos)
+DocumentView::SourceLink DocumentView::sourceLink(QPoint pos)
 {
     SourceLink sourceLink;
 
@@ -1425,12 +1482,12 @@ bool DocumentView::refresh()
 
         m_currentPage = qMin(m_currentPage, document->numberOfPages());
 
-        QSet< QString > expandedPaths;
-        saveExpandedPaths(m_outlineModel.data(), expandedPaths, QModelIndex(), QString());
+        QSet< QByteArray > expandedPaths;
+        ::saveExpandedPaths(m_outlineModel.data(), expandedPaths);
 
         prepareDocument(document, pages);
 
-        restoreExpandedPaths(m_outlineModel.data(), expandedPaths, QModelIndex(), QString());
+        ::restoreExpandedPaths(m_outlineModel.data(), expandedPaths);
 
         prepareScene();
         prepareView(left, top);
@@ -1621,7 +1678,7 @@ void DocumentView::startSearch(const QString& text, bool matchCase, bool wholeWo
     cancelSearch();
     clearResults();
 
-    m_searchTask->start(m_pages, text, matchCase, wholeWords, m_currentPage);
+    m_searchTask->start(m_pages, text, matchCase, wholeWords, m_currentPage, s_settings->documentView().parallelSearchExecution());
 }
 
 void DocumentView::cancelSearch()
@@ -1795,7 +1852,7 @@ void DocumentView::startPresentation()
 
 void DocumentView::on_verticalScrollBar_valueChanged()
 {
-    if(!m_continuousMode)
+    if(m_verticalScrollBarChangedBlocked || !m_continuousMode)
     {
         return;
     }
@@ -1989,7 +2046,7 @@ void DocumentView::on_pages_zoomToSelection(int page, const QRectF& rect)
     jumpToPage(page, false, rect.left(), rect.top());
 }
 
-void DocumentView::on_pages_openInSourceEditor(int page, const QPointF& pos)
+void DocumentView::on_pages_openInSourceEditor(int page, QPointF pos)
 {
 #ifdef WITH_SYNCTEX
 
@@ -2259,7 +2316,7 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
     int jobId = 0;
 
     num_dests = cupsGetDests(&dests);
-    dest = cupsGetDest(printer->printerName().toLocal8Bit(), 0, num_dests, dests);
+    dest = cupsGetDest(printer->printerName().toUtf8(), 0, num_dests, dests);
 
     if(dest == 0)
     {
@@ -2279,12 +2336,12 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
 
     for(int index = 0; index < cupsOptions.count() - 1; index += 2)
     {
-        num_options = cupsAddOption(cupsOptions.at(index).toLocal8Bit(), cupsOptions.at(index + 1).toLocal8Bit(), num_options, &options);
+        num_options = cupsAddOption(cupsOptions.at(index).toUtf8(), cupsOptions.at(index + 1).toUtf8(), num_options, &options);
     }
 
 #if QT_VERSION >= QT_VERSION_CHECK(4,7,0)
 
-    num_options = cupsAddOption("copies", QString::number(printer->copyCount()).toLocal8Bit(), num_options, &options);
+    num_options = cupsAddOption("copies", QString::number(printer->copyCount()).toUtf8(), num_options, &options);
 
 #endif // QT_VERSION
 
@@ -2415,7 +2472,7 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
 
     {
         bool ok = false;
-        int value = QString::fromLocal8Bit(cupsGetOption("number-up", num_options, options)).toInt(&ok);
+        int value = QString::fromUtf8(cupsGetOption("number-up", num_options, options)).toInt(&ok);
 
         numberUp = ok ? value : 1;
     }
@@ -2427,11 +2484,11 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
 
     if(printOptions.pageRanges.isEmpty())
     {
-        num_options = cupsAddOption("page-ranges", QString("%1-%2").arg(fromPage).arg(toPage).toLocal8Bit(), num_options, &options);
+        num_options = cupsAddOption("page-ranges", QString("%1-%2").arg(fromPage).arg(toPage).toUtf8(), num_options, &options);
     }
     else
     {
-        num_options = cupsAddOption("page-ranges", printOptions.pageRanges.toLocal8Bit(), num_options, &options);
+        num_options = cupsAddOption("page-ranges", printOptions.pageRanges.toUtf8(), num_options, &options);
     }
 
     QTemporaryFile temporaryFile;
@@ -2456,7 +2513,7 @@ bool DocumentView::printUsingCUPS(QPrinter* printer, const PrintOptions& printOp
         return false;
     }
 
-    jobId = cupsPrintFile(dest->name, temporaryFile.fileName().toLocal8Bit(), m_fileInfo.completeBaseName().toLocal8Bit(), num_options, options);
+    jobId = cupsPrintFile(dest->name, QFile::encodeName(temporaryFile.fileName()), m_fileInfo.completeBaseName().toUtf8(), num_options, options);
 
     if(jobId < 1)
     {
@@ -2630,16 +2687,6 @@ void DocumentView::adjustScrollBarPolicy()
     }
 }
 
-void DocumentView::disconnectVerticalScrollBar()
-{
-    disconnect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_verticalScrollBar_valueChanged()));
-}
-
-void DocumentView::reconnectVerticalScrollBar()
-{
-    connect(verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(on_verticalScrollBar_valueChanged()));
-}
-
 void DocumentView::prepareDocument(Model::Document* document, const QVector< Model::Page* >& pages)
 {
     m_prefetchTimer->blockSignals(true);
@@ -2673,7 +2720,7 @@ void DocumentView::prepareDocument(Model::Document* document, const QVector< Mod
     prepareThumbnails();
     prepareBackground();
 
-    const Model::Outline outline = m_document->loadOutline();
+    const Model::Outline outline = m_document->outline();
 
     if(!outline.empty())
     {
@@ -2684,7 +2731,7 @@ void DocumentView::prepareDocument(Model::Document* document, const QVector< Mod
         m_outlineModel.reset(new FallbackOutlineModel(this));
     }
 
-    Model::Properties properties = m_document->loadProperties();
+    Model::Properties properties = m_document->properties();
 
     addFileProperties(properties, m_fileInfo);
 
@@ -3006,9 +3053,11 @@ void DocumentView::prepareHighlight(int index, const QRectF& rect)
 
     m_highlight->setVisible(true);
 
-    disconnectVerticalScrollBar();
-    centerOn(m_highlight);
-    reconnectVerticalScrollBar();
+    {
+        VerticalScrollBarChangedBlocker verticalScrollBarChangedBlocker(this);
+
+        centerOn(m_highlight);
+    }
 
     viewport()->update();
 }

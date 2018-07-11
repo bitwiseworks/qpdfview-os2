@@ -1,6 +1,7 @@
 /*
 
-Copyright 2012-2013 Adam Reichold
+Copyright 2018 S. Razi Alavizadeh
+Copyright 2012-2013, 2017, 2018 Adam Reichold
 
 This file is part of qpdfview.
 
@@ -50,13 +51,21 @@ public:
     enum FileType
     {
         Unknown = 0,
-        PDF = 1,
-        PS = 2,
-        DjVu = 3,
-        Image = 4
+        PDF,
+        PS,
+        DjVu,
+        Image,
+        GZip,
+        BZip2,
+        XZ,
+        ZIP,
+        EPUB,
+        XPS,
+        FB2,
+        CBZ
     };
 
-    static QString fileTypeName(FileType fileType);
+    static QLatin1String fileTypeName(FileType fileType);
 
     static QStringList openFilter();
 

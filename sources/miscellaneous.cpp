@@ -1,7 +1,8 @@
 /*
 
 Copyright 2014 S. Razi Alavizadeh
-Copyright 2012-2015 Adam Reichold
+Copyright 2012-2018 Adam Reichold
+Copyright 2018 Pavel Sanda
 Copyright 2014 Dorian Scholz
 
 This file is part of qpdfview.
@@ -30,6 +31,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QProcess>
 #include <QScrollBar>
 #include <QTimer>
 #include <QToolTip>
@@ -104,7 +106,31 @@ int ProxyStyle::styleHint(StyleHint hint, const QStyleOption* option, const QWid
     return QProxyStyle::styleHint(hint, option, widget, returnData);
 }
 
-SearchableMenu::SearchableMenu(const QString& title, QWidget* parent) : QMenu(title, parent),
+ToolTipMenu::ToolTipMenu(QWidget* parent) : QMenu(parent)
+{
+}
+
+ToolTipMenu::ToolTipMenu(const QString& title, QWidget* parent) : QMenu(title, parent)
+{
+}
+
+bool ToolTipMenu::event(QEvent* event)
+{
+    const QAction* const action = activeAction();
+
+    if(event->type() == QEvent::ToolTip && action != 0 && !action->data().isNull())
+    {
+        QToolTip::showText(static_cast< QHelpEvent* >(event)->globalPos(), action->toolTip());
+    }
+    else
+    {
+        QToolTip::hideText();
+    }
+
+    return QMenu::event(event);
+}
+
+SearchableMenu::SearchableMenu(const QString& title, QWidget* parent) : ToolTipMenu(title, parent),
     m_searchable(false),
     m_text()
 {
@@ -163,16 +189,18 @@ void SearchableMenu::keyPressEvent(QKeyEvent* event)
 
     foreach(QAction* action, actions())
     {
-        if(!action->data().isNull()) // Modify only flagged actions
+        if(action->data().isNull()) // Modify only flagged actions
         {
-            const bool visible = action->text().contains(m_text, Qt::CaseInsensitive);
+            continue;
+        }
 
-            action->setVisible(visible);
+        const bool visible = action->text().contains(m_text, Qt::CaseInsensitive);
 
-            if(visible && firstVisibleAction == 0)
-            {
-                firstVisibleAction = action;
-            }
+        action->setVisible(visible);
+
+        if(visible && firstVisibleAction == 0)
+        {
+            firstVisibleAction = action;
         }
     }
 
@@ -278,6 +306,19 @@ TabWidget::TabWidget(QWidget* parent) : QTabWidget(parent),
     setTabBar(tabBar);
 }
 
+int TabWidget::addTab(QWidget* const widget, const bool nextToCurrent,
+                      const QString& label, const QString& toolTip)
+{
+    const int index = nextToCurrent
+            ? insertTab(currentIndex() + 1, widget, label)
+            : QTabWidget::addTab(widget, label);
+
+    setTabToolTip(index, toolTip);
+    setCurrentIndex(index);
+
+    return index;
+}
+
 TabWidget::TabBarPolicy TabWidget::tabBarPolicy() const
 {
     return m_tabBarPolicy;
@@ -317,7 +358,31 @@ void TabWidget::setSpreadTabs(bool spreadTabs)
     }
 }
 
-void TabWidget::on_tabBar_customContextMenuRequested(const QPoint& pos)
+void TabWidget::previousTab()
+{
+    int index = currentIndex() - 1;
+
+    if(index < 0)
+    {
+        index = count() - 1;
+    }
+
+    setCurrentIndex(index);
+}
+
+void TabWidget::nextTab()
+{
+    int index = currentIndex() + 1;
+
+    if(index >= count())
+    {
+        index = 0;
+    }
+
+    setCurrentIndex(index);
+}
+
+void TabWidget::on_tabBar_customContextMenuRequested(QPoint pos)
 {
     const int index = tabBar()->tabAt(pos);
 
@@ -839,11 +904,88 @@ void SearchLineEdit::on_timeout()
     emit searchInitiated(text());
 }
 
-void SearchLineEdit::on_returnPressed(const Qt::KeyboardModifiers& modifiers)
+void SearchLineEdit::on_returnPressed(Qt::KeyboardModifiers modifiers)
 {
     stopTimer();
 
     emit searchInitiated(text(), modifiers == Qt::ShiftModifier);
+}
+
+Splitter::Splitter(Qt::Orientation orientation, QWidget* parent) : QSplitter(orientation, parent),
+    m_currentIndex(0)
+{
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(on_focusChanged(QWidget*,QWidget*)));
+}
+
+QWidget* Splitter::currentWidget() const
+{
+    return widget(m_currentIndex);
+}
+
+void Splitter::setCurrentWidget(QWidget* const currentWidget)
+{
+    for(int index = 0, count = this->count(); index < count; ++index)
+    {
+        QWidget* const widget = this->widget(index);
+
+        if(currentWidget == widget)
+        {
+            if(m_currentIndex != index)
+            {
+                m_currentIndex = index;
+
+                emit currentWidgetChanged(currentWidget);
+            }
+
+            return;
+        }
+    }
+}
+
+void Splitter::setUniformSizes()
+{
+    int size;
+
+    switch(orientation())
+    {
+    default:
+    case Qt::Horizontal:
+        size = width();
+        break;
+    case Qt::Vertical:
+        size = height();
+        break;
+    }
+
+    QList< int > sizes;
+
+    for(int index = 0, count = this->count(); index < count; ++index)
+    {
+        sizes.append(size / count);
+    }
+
+    setSizes(sizes);
+}
+
+void Splitter::on_focusChanged(QWidget* /* old */, QWidget* now)
+{
+    for(QWidget* currentWidget = now; currentWidget != 0; currentWidget = currentWidget->parentWidget())
+    {
+        if(currentWidget->parentWidget() == this)
+        {
+            setCurrentWidget(currentWidget);
+
+            return;
+        }
+    }
+}
+
+void openInNewWindow(const QString& filePath, int page)
+{
+    QProcess::startDetached(
+        QApplication::applicationFilePath(),
+        QStringList() << QString("%2#%1").arg(page).arg(filePath)
+    );
 }
 
 } // qpdfview

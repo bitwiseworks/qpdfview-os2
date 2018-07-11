@@ -33,14 +33,14 @@ namespace qpdfview
 
 class PageItem;
 
-class TileItem : public RenderTaskDispatcher::Parent
+class TileItem : public RenderTaskParent
 {
 public:
     TileItem(PageItem* page);
     ~TileItem();
 
     const QRect& rect() const { return m_rect; }
-    void setRect(const QRect& rect) { m_rect = rect; }
+    void setRect(QRect rect) { m_rect = rect; }
 
     const QRectF& cropRect() const { return m_cropRect; }
     void resetCropRect() { m_cropRect = QRectF(); }
@@ -51,7 +51,7 @@ public:
 
     static void dropCachedPixmaps(PageItem* page);
 
-    bool paint(QPainter* painter, const QPointF& topLeft);
+    bool paint(QPainter* painter, QPointF topLeft);
 
 public:
     void refresh(bool keepObsoletePixmaps = false);
@@ -62,10 +62,11 @@ public:
     void deleteAfterRender();
 
 private:
-    void on_finished();
-    void on_imageReady(const RenderParam& renderParam,
-                       const QRect& rect, bool prefetch,
-                       const QImage& image, const QRectF& cropRect);
+    void on_finished(const RenderParam& renderParam,
+                     const QRect& rect, bool prefetch,
+                     const QImage& image, const QRectF& cropRect);
+    void on_canceled();
+    void on_finishedOrCanceled();
 
 private:
     Q_DISABLE_COPY(TileItem)

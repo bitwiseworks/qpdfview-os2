@@ -1,7 +1,8 @@
 /*
 
 Copyright 2014 S. Razi Alavizadeh
-Copyright 2013-2014 Adam Reichold
+Copyright 2018 Marshall Banana
+Copyright 2013-2014, 2018 Adam Reichold
 
 This file is part of qpdfview.
 
@@ -225,10 +226,46 @@ inline void restoreRenderHint(Poppler::Document* document, const Poppler::Docume
 typedef QSharedPointer< Poppler::TextBox > TextBox;
 typedef QList< TextBox > TextBoxList;
 
-QCache< const PdfPage*,  TextBoxList > textCache(1 << 12);
-QMutex textCacheMutex;
+class TextCache
+{
+public:
+    TextCache() : m_mutex(), m_cache(1 << 12) {}
 
-#define LOCK_TEXT_CACHE QMutexLocker mutexLocker(&textCacheMutex);
+    bool object(const PdfPage* page, TextBoxList& textBoxes) const
+    {
+        QMutexLocker mutexLocker(&m_mutex);
+
+        if(TextBoxList* const object = m_cache.object(page))
+        {
+            textBoxes = *object;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    void insert(const PdfPage* page, const TextBoxList& textBoxes)
+    {
+        QMutexLocker mutexLocker(&m_mutex);
+
+        m_cache.insert(page, new TextBoxList(textBoxes), textBoxes.count());
+    }
+
+    void remove(const PdfPage* page)
+    {
+        QMutexLocker mutexLocker(&m_mutex);
+
+        m_cache.remove(page);
+    }
+
+private:
+    mutable QMutex m_mutex;
+    QCache< const PdfPage*, TextBoxList > m_cache;
+
+};
+
+Q_GLOBAL_STATIC(TextCache, textCache)
 
 namespace Defaults
 {
@@ -403,11 +440,7 @@ PdfPage::PdfPage(QMutex* mutex, Poppler::Page* page) :
 
 PdfPage::~PdfPage()
 {
-    {
-        LOCK_TEXT_CACHE
-
-        textCache.remove(this);
-    }
+    textCache()->remove(this);
 
     delete m_page;
 }
@@ -419,7 +452,7 @@ QSizeF PdfPage::size() const
     return m_page->pageSizeF();
 }
 
-QImage PdfPage::render(qreal horizontalResolution, qreal verticalResolution, Rotation rotation, const QRect& boundingRect) const
+QImage PdfPage::render(qreal horizontalResolution, qreal verticalResolution, Rotation rotation, QRect boundingRect) const
 {
     LOCK_PAGE
 
@@ -540,21 +573,9 @@ QString PdfPage::text(const QRectF& rect) const
 
 QString PdfPage::cachedText(const QRectF& rect) const
 {
-    bool wasCached = false;
     TextBoxList textBoxes;
 
-    {
-        LOCK_TEXT_CACHE
-
-        if(const TextBoxList* object = textCache.object(this))
-        {
-            wasCached = true;
-
-            textBoxes = *object;
-        }
-    }
-
-    if(!wasCached)
+    if(!textCache()->object(this, textBoxes))
     {
         {
             LOCK_PAGE
@@ -565,9 +586,7 @@ QString PdfPage::cachedText(const QRectF& rect) const
             }
         }
 
-        LOCK_TEXT_CACHE
-
-        textCache.insert(this, new TextBoxList(textBoxes), textBoxes.count());
+        textCache()->insert(this, textBoxes);
     }
 
     QString text;
@@ -604,21 +623,23 @@ QList< QRectF > PdfPage::search(const QString& text, bool matchCase, bool wholeW
 
     QList< QRectF > results;
 
-#if defined(HAS_POPPLER_31)
+#ifdef HAS_POPPLER_31
 
     const Poppler::Page::SearchFlags flags((matchCase ? 0 : Poppler::Page::IgnoreCase) | (wholeWords ? Poppler::Page::WholeWords : 0));
 
     results = m_page->search(text, flags);
 
-#elif defined(HAS_POPPLER_22)
+#else
+
+    Q_UNUSED(wholeWords);
 
     const Poppler::Page::SearchMode mode = matchCase ? Poppler::Page::CaseSensitive : Poppler::Page::CaseInsensitive;
+
+#if defined(HAS_POPPLER_22)
 
     results = m_page->search(text, mode);
 
 #elif defined(HAS_POPPLER_14)
-
-    const Poppler::Page::SearchMode mode = matchCase ? Poppler::Page::CaseSensitive : Poppler::Page::CaseInsensitive;
 
     double left = 0.0, top = 0.0, right = 0.0, bottom = 0.0;
 
@@ -629,8 +650,6 @@ QList< QRectF > PdfPage::search(const QString& text, bool matchCase, bool wholeW
 
 #else
 
-    const Poppler::Page::SearchMode mode = matchCase ? Poppler::Page::CaseSensitive : Poppler::Page::CaseInsensitive;
-
     QRectF rect;
 
     while(m_page->search(text, rect, Poppler::Page::NextResult, mode))
@@ -638,7 +657,9 @@ QList< QRectF > PdfPage::search(const QString& text, bool matchCase, bool wholeW
         results.append(rect);
     }
 
-#endif // HAS_POPPLER_31 HAS_POPPLER_22 HAS_POPPLER_14
+#endif // HAS_POPPLER_22 HAS_POPPLER_14
+
+#endif // HAS_POPPLER_31
 
     return results;
 }
@@ -949,7 +970,7 @@ void PdfDocument::setPaperColor(const QColor& paperColor)
     m_document->setPaperColor(paperColor);
 }
 
-Outline PdfDocument::loadOutline() const
+Outline PdfDocument::outline() const
 {
     Outline outline;
 
@@ -959,13 +980,13 @@ Outline PdfDocument::loadOutline() const
 
     if(toc)
     {
-        outline = ::loadOutline(*toc, m_document);
+        outline = loadOutline(*toc, m_document);
     }
 
     return outline;
 }
 
-Properties PdfDocument::loadProperties() const
+Properties PdfDocument::properties() const
 {
     Properties properties;
 
@@ -995,7 +1016,7 @@ Properties PdfDocument::loadProperties() const
     return properties;
 }
 
-QAbstractItemModel* PdfDocument::loadFonts() const
+QAbstractItemModel* PdfDocument::fonts() const
 {
     LOCK_DOCUMENT
 
