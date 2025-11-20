@@ -1,7 +1,8 @@
 /*
 
-Copyright 2014 S. Razi Alavizadeh
-Copyright 2012-2014, 2018 Adam Reichold
+Copyright 2014, 2021 S. Razi Alavizadeh
+Copyright 2020 Johan Björklund
+Copyright 2012-2014, 2018, 2021 Adam Reichold
 Copyright 2014 Dorian Scholz
 Copyright 2018 Egor Zenkov
 
@@ -32,6 +33,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 class QDomNode;
 class QFileSystemWatcher;
+class QGestureEvent;
 class QPrinter;
 class QStandardItemModel;
 
@@ -112,6 +114,9 @@ public:
     bool invertColors() const { return m_renderFlags.testFlag(InvertColors); }
     void setInvertColors(bool invertColors) { setRenderFlag(InvertColors, invertColors); }
 
+    bool invertLightness() const { return m_renderFlags.testFlag(InvertLightness); }
+    void setInvertLightness(bool invertLightness) { setRenderFlag(InvertLightness, invertLightness); }
+
     bool convertToGrayscale() const { return m_renderFlags.testFlag(ConvertToGrayscale); }
     void setConvertToGrayscale(bool convertToGrayscale) { setRenderFlag(ConvertToGrayscale, convertToGrayscale); }
 
@@ -190,9 +195,12 @@ signals:
     void linkClicked(int page);
     void linkClicked(bool newTab, const QString& filePath, int page);
 
+    void appendTextToBookmarkComment(int page, const QString& text);
+
     void renderFlagsChanged(qpdfview::RenderFlags renderFlags);
 
     void invertColorsChanged(bool invertColors);
+    void invertLightnessChanged(bool invertLightness);
     void convertToGrayscaleChanged(bool convertToGrayscale);
     void trimMarginsChanged(bool trimMargins);
 
@@ -271,11 +279,14 @@ protected slots:
     void on_pages_wasModified();
 
 protected:
+    bool event(QEvent* event);
+
     void resizeEvent(QResizeEvent* event);
 
     void keyPressEvent(QKeyEvent* event);
     void mousePressEvent(QMouseEvent* event);
     void wheelEvent(QWheelEvent* event);
+    void gestureEvent(QGestureEvent* event);
 
     void contextMenuEvent(QContextMenuEvent* event);
 

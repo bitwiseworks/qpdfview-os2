@@ -1,7 +1,7 @@
 /*
 
-Copyright 2018 S. Razi Alavizadeh
-Copyright 2014-2015 Adam Reichold
+Copyright 2018,2021 S. Razi Alavizadeh
+Copyright 2014-2015, 2021 Adam Reichold
 
 This file is part of qpdfview.
 
@@ -24,11 +24,27 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 
+#include "compatibility.h"
+
 namespace qpdfview
 {
 
 static inline bool operator<(int page, const BookmarkItem& bookmark) { return page < bookmark.page; }
 static inline bool operator<(const BookmarkItem& bookmark, int page) { return bookmark.page < page; }
+
+void BookmarkItem::appendToComment(const QString& text)
+{
+    if(comment.endsWith("\n"))
+    {
+        comment.append("\n");
+    }
+    else if(!comment.isEmpty())
+    {
+        comment.append("\n\n");
+    }
+
+    comment.append(text);
+}
 
 QHash< QString, BookmarkModel* > BookmarkModel::s_instances;
 
@@ -64,7 +80,7 @@ void BookmarkModel::removeAllPaths()
 
 void BookmarkModel::addBookmark(const BookmarkItem& bookmark)
 {
-    const QVector< BookmarkItem >::iterator at = qLowerBound(m_bookmarks.begin(), m_bookmarks.end(), bookmark.page);
+    const QVector< BookmarkItem >::iterator at = std::lower_bound(m_bookmarks.begin(), m_bookmarks.end(), bookmark.page);
     const int row = at - m_bookmarks.begin();
 
     if(at != m_bookmarks.end() && at->page == bookmark.page)
@@ -85,7 +101,7 @@ void BookmarkModel::addBookmark(const BookmarkItem& bookmark)
 
 void BookmarkModel::removeBookmark(const BookmarkItem& bookmark)
 {
-    const QVector< BookmarkItem >::iterator at = qBinaryFind(m_bookmarks.begin(), m_bookmarks.end(), bookmark.page);
+    const QVector< BookmarkItem >::iterator at = binarySearch(m_bookmarks.begin(), m_bookmarks.end(), bookmark.page);
     const int row = at - m_bookmarks.begin();
 
     if(at != m_bookmarks.end())
@@ -100,7 +116,7 @@ void BookmarkModel::removeBookmark(const BookmarkItem& bookmark)
 
 void BookmarkModel::findBookmark(BookmarkItem& bookmark) const
 {
-    const QVector< BookmarkItem >::const_iterator at = qBinaryFind(m_bookmarks.constBegin(), m_bookmarks.constEnd(), bookmark.page);
+    const QVector< BookmarkItem >::const_iterator at = binarySearch(m_bookmarks.constBegin(), m_bookmarks.constEnd(), bookmark.page);
 
     if(at != m_bookmarks.constEnd())
     {

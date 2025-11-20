@@ -23,12 +23,18 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "pdfmodel.h"
 
+#include <memory>
+
 #include <QCache>
 #include <QFormLayout>
 #include <QMessageBox>
 #include <QSettings>
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+#include <poppler-qt6.h>
+
+#elif QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 
 #include <poppler-qt5.h>
 
@@ -64,6 +70,72 @@ namespace
 
 using namespace qpdfview;
 using namespace qpdfview::Model;
+
+#ifdef HAS_POPPLER_74
+
+Outline loadOutline(QVector< Poppler::OutlineItem > items, Poppler::Document* document)
+{
+    Outline outline;
+
+    outline.reserve(items.size());
+
+    for(QVector< Poppler::OutlineItem >::const_iterator item = items.constBegin(); item != items.constEnd(); ++item)
+    {
+        outline.push_back(Section());
+        Section& section = outline.back();
+
+        section.title = item->name();
+
+        QSharedPointer< const Poppler::LinkDestination > destination = item->destination();
+
+        if(destination)
+        {
+            int page = destination->pageNumber();
+            qreal left = qQNaN();
+            qreal top = qQNaN();
+
+            page = page >= 1 ? page : 1;
+            page = page <= document->numPages() ? page : document->numPages();
+
+            if(destination->isChangeLeft())
+            {
+                left = destination->left();
+
+                left = left >= 0.0 ? left : 0.0;
+                left = left <= 1.0 ? left : 1.0;
+            }
+
+            if(destination->isChangeTop())
+            {
+                top = destination->top();
+
+                top = top >= 0.0 ? top : 0.0;
+                top = top <= 1.0 ? top : 1.0;
+            }
+
+            Link& link = section.link;
+            link.page = page;
+            link.left = left;
+            link.top = top;
+
+            const QString fileName = item->externalFileName();
+
+            if(!fileName.isEmpty())
+            {
+                link.urlOrFileName = fileName;
+            }
+        }
+
+        if(item->hasChildren())
+        {
+            section.children = loadOutline(item->children(), document);
+        }
+    }
+
+    return outline;
+}
+
+#else
 
 Outline loadOutline(const QDomNode& parent, Poppler::Document* document)
 {
@@ -139,6 +211,8 @@ Outline loadOutline(const QDomNode& parent, Poppler::Document* document)
 
     return outline;
 }
+
+#endif // HAS_POPPLER_74
 
 class FontsModel : public QAbstractTableModel
 {
@@ -504,13 +578,23 @@ QList< Link* > PdfPage::links() const
 
     QList< Link* > links;
 
-    foreach(const Poppler::Link* link, m_page->links())
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+    for(std::unique_ptr< Poppler::Link >& link : m_page->links())
     {
+
+#else
+
+    foreach(Poppler::Link* link_, m_page->links())
+    {
+        std::unique_ptr< Poppler::Link > link(link_);
+
+#endif // QT_VERSION
         const QRectF boundary = link->linkArea().normalized();
 
         if(link->linkType() == Poppler::Link::Goto)
         {
-            const Poppler::LinkGoto* linkGoto = static_cast< const Poppler::LinkGoto* >(link);
+            const Poppler::LinkGoto* linkGoto = static_cast< const Poppler::LinkGoto* >(link.get());
 
             int page = linkGoto->destination().pageNumber();
             qreal left = qQNaN();
@@ -545,20 +629,18 @@ QList< Link* > PdfPage::links() const
         }
         else if(link->linkType() == Poppler::Link::Browse)
         {
-            const Poppler::LinkBrowse* linkBrowse = static_cast< const Poppler::LinkBrowse* >(link);
+            const Poppler::LinkBrowse* linkBrowse = static_cast< const Poppler::LinkBrowse* >(link.get());
             const QString url = linkBrowse->url();
 
             links.append(new Link(boundary, url));
         }
         else if(link->linkType() == Poppler::Link::Execute)
         {
-            const Poppler::LinkExecute* linkExecute = static_cast< const Poppler::LinkExecute* >(link);
+            const Poppler::LinkExecute* linkExecute = static_cast< const Poppler::LinkExecute* >(link.get());
             const QString url = linkExecute->fileName();
 
             links.append(new Link(boundary, url));
         }
-
-        delete link;
     }
 
     return links;
@@ -580,10 +662,21 @@ QString PdfPage::cachedText(const QRectF& rect) const
         {
             LOCK_PAGE
 
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+            for(std::unique_ptr< Poppler::TextBox >& textBox : m_page->textList())
+            {
+                textBoxes.append(TextBox(textBox.release()));
+            }
+
+#else
+
             foreach(Poppler::TextBox* textBox, m_page->textList())
             {
                 textBoxes.append(TextBox(textBox));
             }
+
+#endif // QT_VERSION
         }
 
         textCache()->insert(this, textBoxes);
@@ -670,15 +763,23 @@ QList< Annotation* > PdfPage::annotations() const
 
     QList< Annotation* > annotations;
 
-    foreach(Poppler::Annotation* annotation, m_page->annotations())
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+    for(std::unique_ptr< Poppler::Annotation >& annotation : m_page->annotations())
     {
+
+#else
+
+    foreach(Poppler::Annotation* annotation_, m_page->annotations())
+    {
+        std::unique_ptr< Poppler::Annotation > annotation(annotation_);
+
+#endif // QT_VERSION
+
         if(annotation->subType() == Poppler::Annotation::AText || annotation->subType() == Poppler::Annotation::AHighlight || annotation->subType() == Poppler::Annotation::AFileAttachment)
         {
-            annotations.append(new PdfAnnotation(m_mutex, annotation));
-            continue;
+            annotations.append(new PdfAnnotation(m_mutex, annotation.release()));
         }
-
-        delete annotation;
     }
 
     return annotations;
@@ -796,46 +897,51 @@ QList< FormField* > PdfPage::formFields() const
 
     QList< FormField* > formFields;
 
-    foreach(Poppler::FormField* formField, m_page->formFields())
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+    for(std::unique_ptr< Poppler::FormField >& formField : m_page->formFields())
     {
+
+#else
+
+    foreach(Poppler::FormField* formField_, m_page->formFields())
+    {
+        std::unique_ptr< Poppler::FormField > formField(formField_);
+
+#endif // QT_VERSION
+
         if(!formField->isVisible() || formField->isReadOnly())
         {
-            delete formField;
             continue;
         }
 
         if(formField->type() == Poppler::FormField::FormText)
         {
-            Poppler::FormFieldText* formFieldText = static_cast< Poppler::FormFieldText* >(formField);
+            Poppler::FormFieldText* formFieldText = static_cast< Poppler::FormFieldText* >(formField.get());
 
             if(formFieldText->textType() == Poppler::FormFieldText::Normal || formFieldText->textType() == Poppler::FormFieldText::Multiline)
             {
-                formFields.append(new PdfFormField(m_mutex, formField));
-                continue;
+                formFields.append(new PdfFormField(m_mutex, formField.release()));
             }
         }
         else if(formField->type() == Poppler::FormField::FormChoice)
         {
-            Poppler::FormFieldChoice* formFieldChoice = static_cast< Poppler::FormFieldChoice* >(formField);
+            Poppler::FormFieldChoice* formFieldChoice = static_cast< Poppler::FormFieldChoice* >(formField.get());
 
             if(formFieldChoice->choiceType() == Poppler::FormFieldChoice::ListBox || formFieldChoice->choiceType() == Poppler::FormFieldChoice::ComboBox)
             {
-                formFields.append(new PdfFormField(m_mutex, formField));
-                continue;
+                formFields.append(new PdfFormField(m_mutex, formField.release()));
             }
         }
         else if(formField->type() == Poppler::FormField::FormButton)
         {
-            Poppler::FormFieldButton* formFieldButton = static_cast< Poppler::FormFieldButton* >(formField);
+            Poppler::FormFieldButton* formFieldButton = static_cast< Poppler::FormFieldButton* >(formField.get());
 
             if(formFieldButton->buttonType() == Poppler::FormFieldButton::CheckBox || formFieldButton->buttonType() == Poppler::FormFieldButton::Radio)
             {
-                formFields.append(new PdfFormField(m_mutex, formField));
-                continue;
+                formFields.append(new PdfFormField(m_mutex, formField.release()));
             }
         }
-
-        delete formField;
     }
 
     return formFields;
@@ -863,9 +969,9 @@ Page* PdfDocument::page(int index) const
 {
     LOCK_DOCUMENT
 
-    if(Poppler::Page* page = m_document->page(index))
+    if(std::unique_ptr< Poppler::Page > page_ = std::unique_ptr< Poppler::Page >(m_document->page(index)))
     {
-        return new PdfPage(&m_mutex, page);
+        return new PdfPage(&m_mutex, page_.release());
     }
 
     return 0;
@@ -942,7 +1048,7 @@ bool PdfDocument::save(const QString& filePath, bool withChanges) const
 {
     LOCK_DOCUMENT
 
-    QScopedPointer< Poppler::PDFConverter > pdfConverter(m_document->pdfConverter());
+    std::unique_ptr< Poppler::PDFConverter > pdfConverter(m_document->pdfConverter());
 
     pdfConverter->setOutputFileName(filePath);
 
@@ -972,9 +1078,15 @@ void PdfDocument::setPaperColor(const QColor& paperColor)
 
 Outline PdfDocument::outline() const
 {
-    Outline outline;
-
     LOCK_DOCUMENT
+
+#ifdef HAS_POPPLER_74
+
+    return loadOutline(m_document->outline(), m_document);
+
+#else
+
+    Outline outline;
 
     QScopedPointer< QDomDocument > toc(m_document->toc());
 
@@ -984,6 +1096,8 @@ Outline PdfDocument::outline() const
     }
 
     return outline;
+
+#endif // HAS_POPPLER_74
 }
 
 Properties PdfDocument::properties() const
@@ -1006,7 +1120,18 @@ Properties PdfDocument::properties() const
 
     int pdfMajorVersion = 1;
     int pdfMinorVersion = 0;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+    const auto pdfVersion = m_document->getPdfVersion();
+    pdfMajorVersion = pdfVersion.major;
+    pdfMinorVersion = pdfVersion.minor;
+
+#else
+
     m_document->getPdfVersion(&pdfMajorVersion, &pdfMinorVersion);
+
+#endif // QT_VERSION
 
     properties.push_back(qMakePair(tr("PDF version"), QString("%1.%2").arg(pdfMajorVersion).arg(pdfMinorVersion)));
 
@@ -1240,7 +1365,7 @@ PdfPlugin::PdfPlugin(QObject* parent) : QObject(parent)
 
 Model::Document* PdfPlugin::loadDocument(const QString& filePath) const
 {
-    if(Poppler::Document* document = Poppler::Document::load(filePath))
+    if(std::unique_ptr< Poppler::Document > document = std::unique_ptr< Poppler::Document >(Poppler::Document::load(filePath)))
     {
         document->setRenderHint(Poppler::Document::Antialiasing, m_settings->value("antialiasing", Defaults::antialiasing).toBool());
         document->setRenderHint(Poppler::Document::TextAntialiasing, m_settings->value("textAntialiasing", Defaults::textAntialiasing).toBool());
@@ -1309,11 +1434,19 @@ Model::Document* PdfPlugin::loadDocument(const QString& filePath) const
             document->setRenderBackend(Poppler::Document::SplashBackend);
             break;
         case 1:
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+            document->setRenderBackend(Poppler::Document::QPainterBackend);
+
+#else
+
             document->setRenderBackend(Poppler::Document::ArthurBackend);
+
+#endif // QT_VERSION
             break;
         }
 
-        return new Model::PdfDocument(document);
+        return new Model::PdfDocument(document.release());
     }
 
     return 0;

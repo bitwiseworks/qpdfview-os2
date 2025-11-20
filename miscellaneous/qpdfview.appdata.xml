@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Adam Reichold <adam.reichold@t-online.de> -->
-<application>
-    <id type="desktop">qpdfview.desktop</id>
+<!-- Copyright 2018 Boyuan Yang <073plan@gmail.com> -->
+<component type="desktop-application">
+    <id>qpdfview.desktop</id>
     <metadata_license>CC0-1.0</metadata_license>
     <project_license>GPL-2.0+</project_license>
     <name>qpdfview</name>
-    <summary>tabbed document viewer</summary>
+    <summary>Tabbed document viewer</summary>
     <description>
         <p>
         qpdfview is a simple tabbed document viewer which uses the Poppler library for PDF rendering and CUPS for printing and provides a clear and simple Qt graphical user interface. Support for the DjVu and PostScript formats can be added via plugins.
@@ -28,12 +29,27 @@
             <li>Partial form support (PDF only)</li>
         </ul>    
     </description>
+    <launchable type="desktop-id">qpdfview.desktop</launchable>
     <screenshots>
-        <screenshot type="default" width="800" height="600">http://screenshots.debian.net/image/13652_large.png</screenshot>
-        <screenshot width="800" height="600">http://screenshots.debian.net/screenshots/q/qpdfview/13653_large.png</screenshot>
-        <screenshot width="426" height="503">http://screenshots.debian.net/screenshots/q/qpdfview/9701_large.png</screenshot>
-        <screenshot width="707" height="600">http://screenshots.debian.net/screenshots/q/qpdfview/9399_large.png</screenshot>
+      <screenshot type="default">
+        <image>https://screenshots.debian.net/shrine/screenshot/14328/simage/small-587677349ebef2f9ab1b56d7cbc7888e.png</image>
+        <caption>Tabbed document viewer</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://screenshots.debian.net/shrine/screenshot/13653/simage/small-f82ec0df4981d8af1218606e1028b7c8.png</image>
+        <caption>Main window with docks</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://screenshots.debian.net/shrine/screenshot/13652/simage/small-8a58e011e24cfa1269c0dfd7dc59b4dd.png</image>
+        <caption>Main window with no docks</caption>
+      </screenshot>
+      <screenshot>
+        <image>https://screenshots.debian.net/shrine/screenshot/9701/simage/large-fc24ce71b940de85cd43c4754916adc3.png</image>
+        <caption>Settings dialog</caption>
+      </screenshot>
     </screenshots>
     <url type="homepage">https://launchpad.net/qpdfview</url>
-    <updatecontact>qpdfview@lists.launchpad.net</updatecontact>
-</application>
+    <developer_name>Adam Reichold</developer_name>
+    <update_contact>qpdfview@lists.launchpad.net</update_contact>
+    <content_rating type="oars-1.0" />
+</component>

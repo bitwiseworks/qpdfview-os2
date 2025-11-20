@@ -24,6 +24,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QImage>
 #include <QMutex>
+#include <QObject>
 #include <QRunnable>
 #include <QSet>
 #include <QWaitCondition>
@@ -141,7 +142,6 @@ private:
 
     Model::Page* m_page;
 
-    static const RenderParam s_defaultRenderParam;
     RenderParam m_renderParam;
 
     QRect m_rect;
@@ -149,40 +149,65 @@ private:
 
 };
 
+
 #if QT_VERSION > QT_VERSION_CHECK(5,0,0)
 
 inline void RenderTask::setCancellation(bool force)
 {
-    m_wasCanceled.storeRelease(force ? CanceledForcibly : CanceledNormally);
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+
+    m_wasCanceled.storeRelaxed(force ? CanceledForcibly : CanceledNormally);
+
+#else
+
+    m_wasCanceled.store(force ? CanceledForcibly : CanceledNormally);
+
+#endif // QT_VERSION
 }
 
 inline void RenderTask::resetCancellation()
 {
-    m_wasCanceled.storeRelease(NotCanceled);
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+
+    m_wasCanceled.storeRelaxed(NotCanceled);
+
+#else
+
+    m_wasCanceled.store(NotCanceled);
+
+#endif // QT_VERSION
 }
 
 inline bool RenderTask::testCancellation()
 {
     return m_prefetch ?
-                m_wasCanceled.load() == CanceledForcibly :
-                m_wasCanceled.load() != NotCanceled;
+                loadCancellation() == CanceledForcibly :
+                loadCancellation() != NotCanceled;
 }
 
 inline int RenderTask::loadCancellation() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+
+    return m_wasCanceled.loadRelaxed();
+
+#else
+
     return m_wasCanceled.load();
+
+#endif // QT_VERSION
 }
 
 #else
 
 inline void RenderTask::setCancellation(bool force)
 {
-    m_wasCanceled.fetchAndStoreRelease(force ? CanceledForcibly : CanceledNormally);
+    m_wasCanceled.fetchAndStoreRelaxed(force ? CanceledForcibly : CanceledNormally);
 }
 
 inline void RenderTask::resetCancellation()
 {
-    m_wasCanceled.fetchAndStoreRelease(NotCanceled);
+    m_wasCanceled.fetchAndStoreRelaxed(NotCanceled);
 }
 
 inline bool RenderTask::testCancellation()

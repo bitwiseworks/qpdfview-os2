@@ -1,5 +1,6 @@
 /*
 
+Copyright 2020 Johan Björklund
 Copyright 2013-2015 Adam Reichold
 
 This file is part of qpdfview.
@@ -21,6 +22,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rendertask.h"
 
+#include <cmath>
 #include <QApplication>
 #include <qmath.h>
 #include <QPainter>
@@ -155,10 +157,61 @@ QRectF trimMargins(QRgb paperColor, const QImage& image)
                   static_cast< qreal >(bottom - top) / height);
 }
 
+void invertLightness(QImage& image)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+
+    qsizetype bytes = image.sizeInBytes();
+
+#else
+
+    int bytes = image.byteCount();
+
+#endif // QT_VERSION
+
+    QRgb* const begin = reinterpret_cast< QRgb* >(image.bits());
+    QRgb* const end = reinterpret_cast< QRgb* >(image.bits() + bytes);
+
+    // This is a transformation in RGB space that mirrors the color coordinates
+    // about the plane that intersects the mid point of the cube (0.5, 0.5, 0.5)
+    // and is perpendicular to the diagonal vector (1,1,1).
+    //
+    // Each color-coordinate is moved along the (1,1,1)-vector twice its
+    // distance from this mid plane.
+    //
+    // Moving a color-coordinate along (1,1,1) preserves the "hue" 
+    // but changes the "lightness" of the color.
+    
+    for(QRgb* pointer = begin; pointer != end; ++pointer)
+    {
+        const int alpha = qAlpha(*pointer);
+        int r = qRed(*pointer);
+        int g = qGreen(*pointer);
+        int b = qBlue(*pointer);
+
+        const int d = qRound((382.5 - r - g - b) / 1.5);
+        r = qBound(0, r + d, 255);
+        g = qBound(0, g + d, 255);
+        b = qBound(0, b + d, 255);
+
+        *pointer = qRgba(r, g, b, alpha);
+    }
+}
+
 void convertToGrayscale(QImage& image)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,10,0)
+
+    qsizetype bytes = image.sizeInBytes();
+
+#else
+
+    int bytes = image.byteCount();
+
+#endif // QT_VERSION
+
     QRgb* const begin = reinterpret_cast< QRgb* >(image.bits());
-    QRgb* const end = reinterpret_cast< QRgb* >(image.bits() + image.byteCount());
+    QRgb* const end = reinterpret_cast< QRgb* >(image.bits() + bytes);
 
     for(QRgb* pointer = begin; pointer != end; ++pointer)
     {
@@ -178,6 +231,8 @@ void composeWithColor(QPainter::CompositionMode mode, const QColor& color, QImag
 }
 
 } // anonymous
+
+const RenderParam RenderParam::defaultInstance;
 
 RenderTaskParent::~RenderTaskParent()
 {
@@ -374,14 +429,12 @@ RenderTaskDispatcher* RenderTask::s_dispatcher = 0;
 
 Settings* RenderTask::s_settings = 0;
 
-const RenderParam RenderTask::s_defaultRenderParam;
-
 RenderTask::RenderTask(Model::Page* page, RenderTaskParent* parent) : QRunnable(),
     m_parent(parent),
     m_isRunning(false),
     m_wasCanceled(NotCanceled),
     m_page(page),
-    m_renderParam(s_defaultRenderParam),
+    m_renderParam(RenderParam::defaultInstance),
     m_rect(),
     m_prefetch(false)
 {
@@ -489,6 +542,13 @@ void RenderTask::run()
         image.invertPixels();
     }
 
+    if(m_renderParam.invertLightness())
+    {
+        CANCELLATION_POINT
+
+        invertLightness(image);
+    }
+
     CANCELLATION_POINT
 
     s_dispatcher->finished(m_parent,
@@ -525,7 +585,7 @@ void RenderTask::deleteParentLater()
 
 void RenderTask::finish(bool canceled)
 {
-    m_renderParam = s_defaultRenderParam;
+    m_renderParam = RenderParam::defaultInstance;
 
     if(canceled)
     {

@@ -1,6 +1,7 @@
 /*
 
 Copyright 2015 S. Razi Alavizadeh
+Copyright 2020 Johan Björklund
 Copyright 2012-2015 Adam Reichold
 Copyright 2012 Alexander Volkov
 
@@ -24,7 +25,6 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include "settings.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QLocale>
 #include <QSettings>
 
@@ -35,6 +35,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #else
 
 #include <QDesktopServices>
+#include <QDesktopWidget>
 
 #endif // QT_VERSION
 
@@ -122,6 +123,7 @@ void Settings::PageItem::sync()
 
     m_keepObsoletePixmaps = m_settings->value("pageItem/keepObsoletePixmaps", Defaults::PageItem::keepObsoletePixmaps()).toBool();
     m_useDevicePixelRatio = m_settings->value("pageItem/useDevicePixelRatio", Defaults::PageItem::useDevicePixelRatio()).toBool();
+    m_useLogicalDpi = m_settings->value("pageItem/useLogicalDpi", Defaults::PageItem::useLogicalDpi()).toBool();
 
     m_decoratePages = m_settings->value("pageItem/decoratePages", Defaults::PageItem::decoratePages()).toBool();
     m_decorateLinks = m_settings->value("pageItem/decorateLinks", Defaults::PageItem::decorateLinks()).toBool();
@@ -158,6 +160,12 @@ void Settings::PageItem::setUseDevicePixelRatio(bool useDevicePixelRatio)
 {
     m_useDevicePixelRatio = useDevicePixelRatio;
     m_settings->setValue("pageItem/useDevicePixelRatio", useDevicePixelRatio);
+}
+
+void Settings::PageItem::setUseLogicalDpi(bool useLogicalDpi)
+{
+    m_useLogicalDpi = useLogicalDpi;
+    m_settings->setValue("pageItem/useLogicalDpi", useLogicalDpi);
 }
 
 void Settings::PageItem::setDecoratePages(bool decoratePages)
@@ -272,7 +280,8 @@ Settings::PageItem::PageItem(QSettings* settings) :
     m_progressIcon(),
     m_errorIcon(),
     m_keepObsoletePixmaps(Defaults::PageItem::keepObsoletePixmaps()),
-    m_useDevicePixelRatio(false),
+    m_useDevicePixelRatio(Defaults::PageItem::useDevicePixelRatio()),
+    m_useLogicalDpi(Defaults::PageItem::useLogicalDpi()),
     m_decoratePages(Defaults::PageItem::decoratePages()),
     m_decorateLinks(Defaults::PageItem::decorateLinks()),
     m_decorateFormFields(Defaults::PageItem::decorateFormFields()),
@@ -296,9 +305,19 @@ void Settings::PresentationView::setSynchronize(bool synchronize)
 
 int Settings::PresentationView::screen() const
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+
+    const int screenCount = QGuiApplication::screens().count();
+
+#else
+
+    const int screenCount = QApplication::desktop()->screenCount();
+
+#endif // QT_VERSION
+
     int screen = m_settings->value("presentationView/screen", Defaults::PresentationView::screen()).toInt();
 
-    if(screen < -1 || screen >= QApplication::desktop()->screenCount())
+    if(screen < -1 || screen >= screenCount)
     {
         screen = -1;
     }
@@ -335,6 +354,7 @@ void Settings::DocumentView::sync()
 
     m_pagesPerRow = m_settings->value("documentView/pagesPerRow", Defaults::DocumentView::pagesPerRow()).toInt();
 
+    m_relativeJumps = m_settings->value("documentView/relativeJumps", Defaults::DocumentView::relativeJumps()).toBool();
     m_minimalScrolling = m_settings->value("documentView/minimalScrolling", Defaults::DocumentView::minimalScrolling()).toBool();
 
     m_highlightCurrentThumbnail = m_settings->value("documentView/highlightCurrentThumbnail", Defaults::DocumentView::highlightCurrentThumbnail()).toBool();
@@ -398,6 +418,12 @@ void Settings::DocumentView::setPagesPerRow(int pagesPerRow)
         m_pagesPerRow = pagesPerRow;
         m_settings->setValue("documentView/pagesPerRow", pagesPerRow);
     }
+}
+
+void Settings::DocumentView::setRelativeJumps(bool relativeJumps)
+{
+    m_relativeJumps = relativeJumps;
+    m_settings->setValue("documentView/relativeJumps", relativeJumps);
 }
 
 void Settings::DocumentView::setMinimalScrolling(bool minimalScrolling)
@@ -618,6 +644,16 @@ bool Settings::DocumentView::invertColors() const
 void Settings::DocumentView::setInvertColors(bool invertColors)
 {
     m_settings->setValue("documentView/invertColors", invertColors);
+}
+
+bool Settings::DocumentView::invertLightness() const
+{
+    return m_settings->value("documentView/invertLightness", Defaults::DocumentView::invertLightness()).toBool();
+}
+
+void Settings::DocumentView::setInvertLightness(bool invertLightness)
+{
+    m_settings->setValue("documentView/invertLightness", invertLightness);
 }
 
 bool Settings::DocumentView::convertToGrayscale() const
@@ -1108,12 +1144,12 @@ void Settings::PrintDialog::setPageOrder(QPrinter::PageOrder pageOrder)
     m_settings->setValue("printDialog/pageOrder", static_cast< int >(pageOrder));
 }
 
-QPrinter::Orientation Settings::PrintDialog::orientation() const
+PageOrientation Settings::PrintDialog::orientation() const
 {
-    return static_cast< QPrinter::Orientation >(m_settings->value("printDialog/orientation", static_cast< int >(Defaults::PrintDialog::orientation())).toInt());
+    return static_cast< PageOrientation >(m_settings->value("printDialog/orientation", static_cast< int >(Defaults::PrintDialog::orientation())).toInt());
 }
 
-void Settings::PrintDialog::setOrientation(QPrinter::Orientation orientation)
+void Settings::PrintDialog::setOrientation(PageOrientation orientation)
 {
     m_settings->setValue("printDialog/orientation", static_cast< int >(orientation));
 }

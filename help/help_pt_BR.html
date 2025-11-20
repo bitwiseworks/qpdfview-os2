@@ -36,7 +36,7 @@ This file is additionally licensed under the Creative Commons Attribution-ShareA
 
 <h2><a name="top">Ajuda</a></h2>
 
-<h4>Tabela de conteúdos</h4>
+<h4>Índice</h4>
 <ol>
     <li><a href="#mainmenu">Menu principal</a></li>
     <ol>
@@ -49,46 +49,48 @@ This file is additionally licensed under the Creative Commons Attribution-ShareA
     </ol>
     <li><a href="#mainview">Visualização principal</a></li>
     <li><a href="#auxiliaryviews">Visualizações auxiliares</a></li>
-    <li><a href="#settings">Ajustes</a></li>
+    <li><a href="#settings">Configurações</a></li>
     <ol>
-    	<li><a href="#behaviorsettings">Ajustes de aparência</a></li>
-    	<li><a href="#graphicssettings">Ajustes de gráficos</a></li>
+    	<li><a href="#behaviorsettings">Configurações da aparência</a></li>
+    	<li><a href="#graphicssettings">Configurações dos gráficos</a></li>
     	<li><a href="#interfacesettings">Configurações da interface</a></li>
-    	<li><a href="#shortcutsettings">Configuração de atalhos</a></li>
-    	<li><a href="#modifiersettings">Configurações de modificação</a></li>
+    	<li><a href="#shortcutsettings">Configurações dos atalhos</a></li>
+    	<li><a href="#modifiersettings">Configurações do modificador</a></li>
     </ol>
 </ol>
 
 <h4>Introdução</h4>
 
-<p><em>qpdfview</em> é um visualizador de documentos com abas. Utiliza o
-Poppler para suporte a PDF, libspectre para suporte a PS, DjVuLibre para
-suporte a DjVu, CUPS para suporte a impressão e QT Toolkit para sua
-interface.</p>
+<p><em>qpdfview</em>O qpdfview é um leitor ou visualizador de documentos com
+abas.  Utiliza o Poppler para o suporte a PDF, a biblioteca Libspectre para
+o suporte a PS, o DjVuLibre para o suporte a DjVu, o CUPS para o suporte a
+impressão e QT Toolkit para a sua interface gráfica.</p>
 
-<p>Por favor, consulte a página do manual para obter informações sobre opções
-de linha de comando e arquivos de configuração.</p>
+<p>Por favor, consulte a página do manual para obter mais informações sobre as
+opções de linha de comando e sobre os arquivos de configuração.</p>
 
 <h3><a name="mainmenu">Menu principal</a> <a href="#top">&uarr;</a></h3>
 
 <h4><a name="file">Arquivo</a> <a href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Abrir...</b> Abre uma janela para selecionar um arquivo para abrir na aba
-atual. Se não houver nenhuma aba, o arquivo é aberto é uma nova aba.</li>
-    <li><b>Abrir em nova aba...</b> Abre uma janela para selecionar arquivos a serem
-abertos em novas abas.</li>
-    <li><b>Recentemente usado</b> Contem uma lista dos arquivos recentemente
-utilizados (se ativado nas configurações).</li>
+    <li><b>Abrir...</b> Abre uma janela de diálogo que permite selecionar um arquivo
+a ser aberto na aba atual. Se não houver nenhuma aba, o arquivo será aberto
+em uma nova aba.</li>
+    <li><b>Abrir em nova aba...</b> Abre uma janela de diálogo que permite
+selecionar os arquivos a serem abertos em novas abas.</li>
+    <li><b>Recentemente utilizado</b> Contém uma lista dos arquivos recentemente
+utilizados (se esta opção estiver ativada nas configurações).</li>
     <li><b>Atualizar</b> Recarrega o arquivo exibido na aba atual.</li>
-    <li><b>Save</b> Saves changes to annotations and form fields to the file
-displayed in the current tab.</li>
-    <li><b>Salvar como...</b> Abre um diálogo para salvar o arquivo exibido na aba
-atual incluindo alterações nas anotações e no formato.</li>
-    <li><b>Save copy...</b> Opens a dialog to save an umodified copy of the file
-displayed in the current tab.</li>
-    <li><b>Imprimir...</b> Abre um diálogo para imprimir o arquivo exibido na aba
-atual.</li>
+    <li><b>Salvar</b> Salva as alterações nas anotações e nos campos do formulário
+no arquivo exibido na guia atual.</li>
+    <li><b>Salvar como...</b> Abre uma janela de diálogo que permite salvar o
+arquivo exibido na aba atual, incluindo as alterações nas anotações e no
+formato.</li>
+    <li><b> Salvar cópia ... </b> Abre uma janela de diálogo que permite salvar uma
+cópia não modificada do arquivo exibido na guia atual.</li>
+    <li><b>Imprimir...</b> Abre uma janela diálogo que permite imprimir o arquivo
+exibido na aba atual.</li>
     <li><b>Sair</b> Fecha todas as abas e encerra o programa.</li>
 </ul>
 
@@ -97,407 +99,507 @@ atual.</li>
 <ul>
     <li><b>Próxima/Anterior/Primeira/Última página</b> Pula para a
 próxima/anterior/primeira/última página do documento.</li>
-    <li><b>Ir para a página...</b> Abre um diálogo para colocar uma página para ser
-exibida na aba atual.</li>
-    <li><b>Pular para trás/para frente</b> Pula para trás/frente no histórico da
-página em exibição.</li>
-    <li><b>Search...</b> Opens the search dock below the main view. The search
-automatically starts two seconds after the last change of the search term or
-is manually started by pressing the return key. If the Shift modifier is
-held when the return key is pressed, the search starts in all tabs instead
-of just the current tab. (This effect is reversed if the extended search
-dock is enabled in the settings.)</li>
-    <li><b>Encontrar anterior/próximo</b> Pula para a ocorrência anterior/próxima do
-termo procurado no documento.</li>
-    <li><b>Cancel search</b> Cancels the currently running search and closes the
-search dock.</li>
-    <li><b>Copy to clipboard</b> If checked, the program will wait for a frame to be
-dragged to copy texts or images.</li>
-    <li><b>Add annotation</b> If checked, the program will wait for a frame to be
-dragged to add annotations.</li>
-    <li><b>Opções...</b> Abre o diálogo de configuração. O botão chamado 'Padrão'
-irá reverter todas as configurações em todas as tabelas para seus valores
-padrões. O botão chamado 'Padrão na tabela atual' irá reverter apenas as
-configurações na tabela atual para seus valores padrões.</li>
+    <li><b>Ir para a página...</b> Abre uma janela diálogo que permite inserir uma
+página para ser exibida na aba atual.</li>
+    <li><b>Pular para trás/para frente</b> Pula para trás ou pula para frente no
+histórico da página em exibição.</li>
+    <li><b> Pesquisar ... </b> Abre a área de pesquisa abaixo da tela principal. A
+pesquisa inicia automaticamente dois segundos após a última alteração do
+termo de pesquisa ou é iniciada manualmente pressionando a tecla Enter. Se a
+tecla modificadora Shift for mantida pressionada quando a tecla Enter for
+pressionada, a pesquisa será iniciada em todas as abas, em vez de apenas na
+aba atual. (Este efeito é revertido se a área de pesquisa estendida estiver
+ativada nas configurações.)</li>
+    <li><b>Encontrar anterior/próximo</b> Pula para a ocorrência anterior ou pula
+para a próxima ocorrência do termo pesquisado no documento.</li>
+    <li><b>Cancelar a pesquisa </b> Cancela a pesquisa em execução no momento e
+fecha a a área de pesquisa.</li>
+    <li><b>Copiar para a área de transferência </b> Se esta opção estiver marcada, o
+programa aguardará o arrastamento de um quadro para copiar textos ou
+imagens.</li>
+    <li><b>Adicionar anotações</b> Se esta opção estiver marcada, programa irá
+esperar um tempo para que um quadro seja arrastado para adicionar anotações.</li>
+    <li><b>Configurações...</b> Abre uma janela de diálogo que permite alterar as
+configurações. O botão chamado de 'Padrão' irá reverter todas as
+configurações em todas as abas para os seus valores padrões. O botão chamado
+'Padrão na aba atual' irá reverter apenas as configurações na aba atual para
+os seus valores padrões.</li>
 </ul>
 
-<p>The <em>current page</em> can be changed by entering the desired page into
-the text field in the edit tool bar, which can be focused using Ctrl+K, and
-pressing the return key.</p>
+<p>A <em>página atual</em> pode ser alterada inserindo a página desejada no
+campo de texto na barra de ferramentas de edição, que pode ser focada
+utilizando as teclas Ctrl + K e pressionando a tecla Enter.</p>
 
-<h4><a name="view">View</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="view">Visualização</a><a href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Continuous</b> Determines whether all rows of the page layout are visible
-at once.</li>
-    <li><b>Two pages</b> Determines whether the page layout uses two columns.</li>
-    <li><b>Two pages with cover page</b> Determines whether the page layout uses two
-columns with a break after the cover page.</li>
-    <li><b>Multiple pages</b> Determines whether the page layout uses multiple
-columns. The number of columns can be changed in the settings dialog.</li>
-    <li><b>Right to left</b> Determines how pages are arranged in layouts with
-multiple pages per row.</li>
-    <li><b>Zoom in</b> Increases the scale factor by 10 percent. The maximum scale
-factor is 5000 percent.</li>
-    <li><b>Zoom out</b> Decreases the scale factor by 10 percent. The minimum scale
-factor is 10 percent.</li>
-    <li><b>Original size</b> Resets the scale factor to 100 percent.</li>
-    <li><b>Fit to page width</b> Determines the scale factor such that all pages
-fully fit into the main view horizontally.</li>
-    <li><b>Fit to page size</b> Determines the scale factor such that all pages
-fully fit into the main view horizontally and vertically.</li>
-    <li><b>Rotate left</b> Rotates the pages left/counterclockwise by 90 degrees.</li>
-    <li><b>Rotate right</b> Rotates the pages right/clockwise by 90 degrees.</li>
-    <li><b>Invert colors</b> Determines whether pages are rendered with inverted
-colors.</li>
-    <li><b>Convert to grayscale</b> Determines whether pages are converted to
-grayscale after rendering.</li>
-    <li><b>Trim margins</b> Enables the removal of empty page margins after
-rendering.</li>
-    <li><b>Composition</b> Enables the composition of the rendered page with the
-paper color to adjust the background of scanned documents.</li>
-    <li><b>Tool bars</b> This menu contains a list of available tool bars for
-accessing frequently used actions.</li>
-    <li><b>Docks</b> This menu contains a list of available docks for displaying
-supplementary information.</li>
-    <li><b>Fonts...</b> Opens a dialog listing the fonts used in the document.</li>
-    <li><b>Fullscreen</b> Toggles the fullscreen mode, i.e. the window is shown
-maximized and without decoration.</li>
-    <li><b>Presentation...</b> Enters presentation mode which can be left by
-pressing F12 or escape. The home/end key is used to display the first/last
-page. Arrow keys right and down, space and the page down key jump to the
-next page. Arrow keys left and up, backspace and the page up key jump to the
-previous page. Pressing control and return jumps back to the page before the
-last jump.</li>
+    <li><b>Contínuo</b> Determina se todas as linhas do leiaute da página estão
+visíveis ao mesmo tempo.</li>
+    <li><b>Duas páginas</b> Determina se o leiaute da página utiliza duas colunas.</li>
+    <li><b>Duas páginas com capa</b> Determina se o leiaute da página utiliza duas
+colunas com uma quebra após a capa.</li>
+    <li><b>Várias páginas</b> Determina se o leiaute da página utiliza várias
+colunas. O número de colunas pode ser alterado na janela de diálogo de
+configurações.</li>
+    <li><b>Da direita para a esquerda</b> Determina como as páginas são organizadas
+em leiautes com várias páginas por linha.</li>
+    <li><b>Ampliar</b> Aumenta o fator da escala em 10%. O fator da escala máximo é
+de 5000%.</li>
+    <li><b>Reduzir</b> Diminui o fator da escala em 10%. O fator da escala mínimo é
+10%.</li>
+    <li><b>Tamanho original</b> Redefine o fator da escala para 100%.</li>
+    <li><b>Ajustar à largura da página</b> Determina o fator da escala para que
+todas as páginas se ajustem totalmente na visualização principal
+horizontalmente.</li>
+    <li><b>Ajustar ao tamanho da página</b> Determina o fator da escala para que
+todas as páginas se ajustem totalmente na visualização principal horizontal
+e verticalmente.</li>
+    <li><b>Girar para a esquerda</b> Gira as páginas para a esquerda no sentido
+anti-horário em 90 graus.</li>
+    <li><b>Girar para a direita</b> Gira as páginas para a direita no sentido
+horário em 90 graus.</li>
+    <li><b>Inverter as cores</b> Determina se as páginas são renderizadas com as
+cores invertidas.</li>
+    <li><b>Converter para a escala de cinza</b> Determina se as páginas são
+convertidas em tons de cinza após a renderização.</li>
+    <li><b>Remover as margens</b> Permite a remoção de margens vazias da página após
+a renderização.</li>
+    <li><b>Composição</b> Ativa a composição da página renderizada com a cor do
+papel para ajustar o fundo dos documentos digitalizados.</li>
+    <li><b>Barras de ferramentas</b> Este menu contém uma lista de barras de
+ferramentas disponíveis para acessar ações utilizadas com frequência.</li>
+    <li><b>Barras ou Docas</b> Este menu contém uma lista de barras ou docas
+disponíveis para exibir as informações suplementares.</li>
+    <li><b>Fontes...</b> Abre uma janela de diálogo que exibe uma lista de fontes
+que são utilizadas no documento.</li>
+    <li><b>Tela cheia</b> Alterna o modo de visualização de tela cheia, ou seja, a
+janela é exibida maximizada e sem decorações.</li>
+    <li><b>Apresentação...</b> Entra no modo de apresentação que pode ser mantido
+pressionando a tecla F12 ou escapar (escape ou esc). A tecla início (home) é
+utilizada para exibir a primeira página e a tecla fim (end) é utilizada para
+exibir a última página. As teclas de seta para a direita, seta para baixo,
+espaço e página para baixo (page down) pulam para a próxima página. As
+teclas de seta para a esquerda, seta para cima, retroceder (backspace) e a
+página para cima (page up) pulam para a página anterior. Pressionar controle
+(control) e retornar (enter ou return) volta para a página anterior ao
+último pulo.</li>
 </ul>
 
-<p>The <em>scale factor</em> can be changed by entering the desired percentage
-into the text field in the view tool bar, which can be focused using Ctrl+L,
-and pressing the return key.</p>
+<p>O <em>fator da escala</em> pode ser alterado inserindo a porcentagem
+desejada no campo de texto na barra de ferramentas da visualização, que pode
+ser focada utilizando as teclas Ctrl + L e pressionando a tecla Enter.</p>
 
-<h4><a name="tabs">Tabs</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="tabs">Abas</a> <a href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Previous/Next tab</b> Makes the previous/next tab the current tab. Cycles
-to the last/first tab if the first/last tab is the current tab.</li>
-    <li><b>Close tab</b> Closes the current tab.</li>
-    <li><b>Close all tabs</b> Closes all tabs.</li>
-    <li><b>Close all tabs but current tab</b> Closes all tabs except for the current
-tab.</li>
-    <li><b>Recently closed</b> Contains a list of the most recently closed tabs (if
-enabled in the settings).</li>
+    <li><b>Aba Anterior ou a Próxima Aba </b> Torna a aba anterior ou torna a
+próxima a aba, na aba atual. Alterna para a última aba ou alterna para a
+primeira aba se a primeira ou última aba for a aba atual.</li>
+    <li><b>Fechar a aba</b> Fecha a aba atual.</li>
+    <li><b>Fechar todas as abas</b> Fecha todas as abas abertas.</li>
+    <li><b>Fechar todas as abas exceto a atual</b> Fecha todas as abas e mantém
+aberta a aba atual.</li>
+    <li><b>Fechado recentemente</b> Contém uma lista das abas fechadas recentemente
+(se esta opção estiver ativada nas configurações).</li>
 </ul>
 
-<p>This menu contains a list of all tabs which can be made the current tab by
-clicking on the corresponding menu item. Tabs can also be closed by
-middle-clicking. The first nine tabs can also be activated by holding the
-Alt modifier and pressing keys one to nine.</p>
+<p>Este menu contém uma lista de todas as abas que podem ser criadas na aba
+atual clicando no item do menu correspondente. As abas também podem ser
+fechadas clicando com o botão do meio. As nove primeiras abas também podem
+ser ativadas mantendo pressionada a tecla modificadora Alt e pressionando
+simultanemanete as teclas numérias de um a nove.</p>
 
-<h4><a name="bookmarks">Bookmarks</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="bookmarks">Marcadores</a> <a href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Previous bookmark</b> Jumps to the closest bookmark before the current
-page.</li>
-    <li><b>Next bookmark</b> Jumps to the closest bookmark after the current page.</li>
-    <li><b>Add bookmark</b> Adds a bookmark for the current file and page.</li>
-    <li><b>Remove bookmark</b> Removes the bookmark for the current file and page.</li>
-    <li><b>Remove all bookmarks</b> Removes all bookmarks.</li>
-    <li><b>Open</b> Opens the corresponding file in the current tab. If there is no
-tab, the file is opened in a new tab.</li>
-    <li><b>Open in new tab</b> Opens the corresponding file in a new tab.</li>
-    <li><b>Jump to page</b> Jumps to the corresponding page if the corresponding
-file is already open. Otherwise the corresponding file is opened in a new
-tab.</li>
+    <li><b>Marcador anterior</b> Pula para o marcador (favorito) mais próximo antes
+da página atual.</li>
+    <li><b>Próximo marcador</b> Pula para o marcador (favorito) mais próximo após a
+página atual.</li>
+    <li><b>Adicionar um marcador</b> Adiciona um marcador (favorito) para o arquivo
+e a página atuais.</li>
+    <li><b>Remover o marcador</b> Remove o marcador (favorito) para o arquivo e a
+página atuais.</li>
+    <li><b>Remover todos os marcadores</b> Remove todos os marcadores (favoritos).</li>
+    <li><b>Abrir</b> Abre o arquivo correspondente na aba atual. Se não houver aba,
+o arquivo será aberto em uma nova aba.</li>
+    <li><b>Abrir em uma nova aba</b> Abre o arquivo correspondente em uma nova aba.</li>
+    <li><b>Pular para página</b> Pula para a página correspondente se o arquivo
+correspondente já estiver aberto. Caso contrário, o arquivo correspondente
+será aberto em uma nova aba.</li>
 </ul>
 
-<h4><a name="help">Help</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="help">Ajuda</a> <a href="#top">&uarr;</a></h4>
 
 <ul>
-	<li><b>Contents</b> Displays this document.</li>
-	<li><b>About</b> Displays the program version.</li>
+	<li><b>Conteúdo</b> Exibe este documento.</li>
+	<li><b>Sobre</b> Exibe a versão do programa.</li>
 </ul>
 
-<h3><a name="mainview">Main view</a> <a href="#top">&uarr;</a></h3>
+<h3><a name="mainview">Menu principal</a> <a href="#top">&uarr;</a></h3>
 
-<p>The backspace/space key skips to the previous/next page. The home/end key
-skips to the first/last page. The arrow, page up and page down keys scroll
-the viewport. Pressing control and return jumps to the page before the last
-jump.</p>
+<p>A tecla de retrocesso (backspace ou bksp)  pula para a página anterior e a
+tecla de espaço (space) pula para a página seguinte. A tecla inicial (home)
+pula para a primeira e a tecla final (end) pula para a última página. As
+teclas de seta, página acima (page up) e página abaixo (page down) rolam a
+janela de visualização. Pressionar a tecla controle (control) e retornar
+(enter) pula para a página antes do último pulo.</p>
 
-<p>Using the mouse wheel scrolls up and down. Holding <b>ALT</b> while using
-the mouse wheel scrolls left and right. Holding <b>CTRL</b> while using the
-mouse wheel scales the document. Holding <b>SHIFT</b> while using the mouse
-wheel rotates the document. (Keyboard modifiers can be changed in the
-settings dialog.) Click and hold the middle mouse button to select a
-rectangle to zoom to.</p>
+<p>Utilizando a roda do mouse para cima e para baixo. Segurando a tecla
+<b>ALT</b> enquanto utiliza a roda do mouse rola para a esquerda ou rola
+para a direita. Segurar a tecla <b>CTRL</b> enquanto utiliza a roda do mouse
+redimensiona o documento. Segurar  a tecla <b>SHIFT</b> enquanto utiliza a
+roda do mouse gira o documento. (As teclas modificadoras do teclado podem
+ser alteradas na janela de diálogo de configurações.) Clique e segure o
+botão do meio do mouse para selecionar um retângulo para ampliar ou reduzir.</p>
 
-<p>Links are highlighted by red frames (if enabled in the settings). Left-click
-on a link to show the linked page or open the linked URL in the default
-browser (if enabled in the settings). Middle-click on a link to show the
-linked page in a new tab. Hovering over a link displays its destination as a
-tool tip.</p>
+<p>Os links são realçados ou destacados pelas bordas em cor vermelha (se esta
+opção estiver ativada nas configurações). Clique com o botão esquerdo do
+mouse em um link para exibir a página vinculada ou abra o endereço de URL
+vinculado no navegador de internet padrão (se esta opção estiver ativada nas
+configurações). Clique com o botão direito do mouse em um link para exibir a
+página vinculada em uma nova aba. Passar o cursor do mouse sobre um link
+exibe o seu destino como uma dica de ferramenta.</p>
 
-<p>Form fields are highlighted by blue frames (if enabled in the
-settings). Left-click on a form field to edit its contents. Hovering over a
-form field displays its name as a tool tip.</p>
+<p>Os campos do formulário são realçados ou destacados por bordas em cor azul
+(se esta opção estiver ativada nas configurações). Clique com o botão
+esquerdo do mouse em um campo do formulário para editar o seu
+conteúdo. Passar o cursor do mouse sobre um campo de formulário exibe o seu
+nome como uma dica de ferramenta.</p>
 
-<p>The source of a position in the document can be opened in the source editor
-using the context menu which optionally contains an item for the first
-matching <em>SyncTeX</em> node.</p>
+<p>A fonte de uma posição no documento pode ser aberta no editor de fontes
+utilizando o menu de contexto que opcionalmente contém um item para o
+primeiro nó correspondente do <em>SyncTeX</em>.</p>
 
-<p>To <em>copy texts or images</em>, hold <b>SHIFT</b>, click and hold the left
-mouse button to drag a frame around the area to copy. Once the mouse button
-is released, a pop-up menu is displayed to select whether to copy texts or
-images into the clipboard.</p>
+<p>Para <em>copiar os textos ou as imagens</em>, mantenha pressionado a tecla
+<b>SHIFT</b>, clique e mantenha pressionado o botão esquerdo do mouse e
+arraste para fazer a seleção ao redor da área a ser copiada. Uma vez que o
+botão do mouse é liberado, uma janela de diálogo é exibida, ela permite
+selecionar se deseja copiar os textos ou as imagens para a área de
+transferência.</p>
 
-<p>To <em>add annotations</em>, hold <b>CTRL</b>, click and hold the left mouse
-button to drag a frame around the region to annotate. Once the mouse button
-is released, a pop-up menu is displayed to select whether to add text or
-highlight annotations. Left-click to <em>edit annotations</em>. Right-click
-to <em>remove annotations</em>. (Adding and removing annotations requires
-version 0.20.1 or higher of the Poppler library.) Hovering over an
-annotation displays its contents as a tool tip.</p>
+<p>Para <em>adicionar as anotações</em>, mantenha pressionada a tecla
+<b>CTRL</b>, clique e mantenha pressionado o botão esquerdo do mouse e
+arraste para fazer a seleção ao redor da região a ser anotada. Uma vez que o
+botão do mouse é liberado, uma janela de diálogo é exibida, ela permite
+selecionar se deseja adicionar um texto ou realçar as anotações. Clique com
+o botão esquerdo para <em>editar as anotações</em>. Clique com o botão
+direito do mouse para <em>remover as anotações</em>. (Adicionar ou remover
+as anotações requer a versão 0.20.1 ou superior da biblioteca Poppler.)
+Passar o cursor do mouse sobre uma anotação exibe seu conteúdo como uma dica
+de ferramenta.</p>
 
-<p>To <em>zoom to a selection</em>, hold <b>SHIFT</b> and <b>CTRL</b>, click
-and hold the left mouse button to drag a frame around region to zoom into.</p>
+<p>Para <em>ampliar a seleção</em>, mantenha pressionada a tecla <b>SHIFT</b> e
+<b>CTRL</b>, clique e mantenha pressionado o botão esquerdo do mouse e
+arraste para fazer a seleção ao redor da região a ser ampliada.</p>
 
-<p>The <em>visibility of the tool and menu bars</em> can be toggled using
-configurable keyboard shortcuts whose default values are "Shift+Alt+T" and
-"Shift+Alt+M".</p>
+<p>A <em>visibilidade da ferramenta e das barras de menus</em> pode ser
+alternada utilizando atalhos de teclado configuráveis cujos valores padrão
+são "Shift + Alt + T" e "Shift + Alt + M".</p>
 
-<h3><a name="auxiliaryviews">Auxiliary views</a> <a href="#top">&uarr;</a></h3>
+<h3><a name="auxiliaryviews">Visualizações auxiliares</a> <a
+href="#top">&uarr;</a></h3>
 
-<p>The <em>outline view</em> displays an overview of the contents of the
-document. A left click on an entry jumps to the respective page in the main
-view. The context menu can be used to expand/collapse all items below the
-selected item.</p>
+<p>A <em>visualização de tópicos</em> exibe uma visão geral do conteúdo do
+documento. Um clique com o botão esquerdo em uma entrada pula para a
+respectiva página na visualização principal. O menu de contexto pode ser
+utilizado para expandir ou recolher todos os itens abaixo do item
+selecionado.</p>
 
-<p>The outline view can also be navigated using the keyboard and the mouse
-wheel. Holding Shift and using the Up/Down keys will scroll the
-view. Holding Shift and using the Left/Right keys will collapse/expand one
-level of items below the selected item. Holding Control and using the
-Left/Right keys will completely collapse/expand the selected item and its
-children. Holding Shift and using the mousel wheel will change the selected
-item. Holding Control and using the mouse wheel will expand/collapse the
-selected item.</p>
+<p>A visualização de estrutura de tópicos também pode ser navegada utilizando o
+teclado e a roda do mouse. Pressionar a tecla Shift e utilizar as teclas
+Para cima ou Para baixo irá rolar a visualização. Pressionar a tecla Shift e
+utilizar as teclas Esquerda ou Direita irá recolher ou expandir
+completamente um nível de itens abaixo do item selecionado. Manter a tecla
+Control pressionada e utilizar as teclas Esquerda ou Direita irá recolher ou
+expandir completamente o item selecionado e seus filhos. Manter a tecla
+Shift pressionada e utilizar a roda do mouse irá mudar o item
+selecionado. Manter a tecla Control pressionada e utilizar a roda do mouse
+irá expandir ou reduzir o item selecionado.</p>
 
-<p>The <em>properties view</em> displays additional information contained in
-the document.</p>
+<p>A <em>visualização de propriedades</em> exibe as informações adicionais
+contidas no documento.</p>
 
-<p>The <em>thumbnails view</em> displays smaller versions of the pages of the
-document. A left click on an entry jumps to the respective page in the main
-view.</p>
+<p>A <em>visualização de miniaturas</em> exibe versões menores das páginas do
+documento. Um clique com o botão esquerdo em uma entrada pula para a
+respectiva página na visualização principal.</p>
 
-<p>The <em>bookmarks view</em> shows the bookmarks related to the document
-displayed in the current tab. The context menu contains entries to jump to
-the previous/next boookmark or to add bookmarks. The context menu of each
-entry also contains entries to edit and delete bookmarks.</p>
+<p>A <em>visualização dos marcadores/ favoritos</em> exibe os marcadores ou
+favoritos relacionados ao documento exibido na aba atual. O menu de contexto
+contém as entradas para ir para o marcador anterior, para ir para o marcador
+seguinte ou para adicionar outros marcadores. O menu de contexto de cada
+entrada também contém as entradas para editar ou excluir os marcadores.</p>
 
-<p>If enabled in the settings, the <em>extended search dock</em> shows an
-overview containing the results of all searches being performed in all
-tabs. It also shows the text surrounding a result with the search term being
-emphasized. Clicking on a result opens the corresponding tab and jumps to
-its position.</p>
+<p>Se estiver ativado nas configurações, a <em>área de pesquisa estendida</em>
+exibe uma visão geral contendo os resultados de todas as pesquisas
+realizadas em todas as abas. Também exibe o texto em torno de um resultado
+com o termo da pesquisa sendo enfatizado ou destacado. Clicar em um
+resultado abre a aba correspondente e pula para a sua posição.</p>
 
-<h3><a name="settings">Settings</a> <a href="#top">&uarr;</a></h3>
+<h3><a name="settings">Configurações</a> <a href="#top">&uarr;</a></h3>
 
-<h4><a name="behaviorsettings">Behavior settings</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="behaviorsettings">Configurações de comportamento</a> <a
+href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Open URL</b> Determines whether links to URL are opened in the default
-browser.</li>
-    <li><b>Auto-refresh</b> Determines whether files are automatically reloaded if
-changed on disk.</li>
-    <li><b>Track recently used</b> If enabled, a recently used menu is available and
-lists as many recently used files as set in the "Recently used count"
-option. (Effective after restart.)</li>
-    <li><b>Keep recently closed</b> If enabled, a recently closed menu is available
-and lists as many recently closed tabs as set in the "Recently closed count"
-option. Keeping the tabs available could increase memory usage
-considerably. (Effective after restart.)</li>
-    <li><b>Restore tabs</b> If enabled, tabs and their properties are saved on
-ending the program and restored on restart.</li>
-    <li><b>Restore bookmarks</b> If enabled, bookmarks are saved on ending the
-program and restored on restart.</li>
-    <li><b>Restore per-file settings</b> If enabled, per-file settings are
-saved/restored on opening/closing tabs.</li>
-    <li><b>Save database interval</b> The interval after which tabs, bookmarks or
-per-file settings are saved to the database.</li>
-    <li><b>Synchronize presentation</b> If enabled, the main view can be used to
-control the presentation view.</li>
-    <li><b>Presentation screen</b> The index of the screen to display the
-presentation view on.</li>
-    <li><b>Synchronize outline view</b> If enabled, the outline view will highlight
-the first entry pointing to the current page whenever the current page
-changes.</li>
-    <li><b>Minimal scrolling</b> If enabled, the view port will only be scrolled if
-the target position is not yet visible.</li>
-    <li><b>Zoom factor</b> The number by which the scale factor is multiplied
-resp. divided upon zooming in resp. out.</li>
-    <li><b>Highlight color</b> Determines the color of highlights.</li>
-    <li><b>Highlight duration</b> Determines the duration of temporary highlights.</li>
-    <li><b>Annotation color</b> The color of annotations added by the program using
-SVG color keywords or hexadecimal notation '#rrggbb'.</li>
-    <li><b>Source editor</b> The program which is started to edit sources. '%1' is
-replaced by the absolute file path. '%2' resp. '%3' is replaced by line
-resp. column number.</li>
+    <li><b>Abrir o URL</b> Determina se os links para os endereços de URL são
+abertos no navegador de internet padrão.</li>
+    <li><b>Atualização automática</b> Determina se os arquivos são recarregados
+automaticamente se forem alterados no disco.</li>
+    <li><b>Rastrear os utilizados recentemente</b> Se esta opção estiver ativada nas
+configurações, um menu do utilizado recentemente estará disponível e irá
+listar quantos arquivos foram utilizados recentemente, conforme definido na
+opção "Contagem de utilizados recentemente". (A ativação ocorrerá após o
+reinício do programa.)</li>
+    <li><b>Listar as abas recentemente fechadas</b> Se esta opção estiver ativada
+nas configurações, um menu fechado recentemente estará disponível e listará
+quantas abas foram fechadas recentemente como definido na opção "Listar a
+quantidade de abas fechadas". Manter as abas disponíveis pode aumentar
+consideravelmente o uso da memória RAM. (A ativação ocorrerá após o reinício
+do programa.)</li>
+    <li><b>Restaurar as abas</b> Se esta opção estiver ativada nas configurações, as
+abas e as suas propriedades são salvas ao finalizar o programa e são
+restauradas na reinicialização.</li>
+    <li><b>Restaurar os marcadores:</b> Se esta opção estiver ativada nas
+configurações, os marcadores ou favoritos são salvos ao finalizar o programa
+e são restaurados na reinicialização.</li>
+    <li><b>Restaurar as configurações por arquivo</b> Se esta opção estiver ativada,
+as configurações por arquivo são salvas ou são restauradas nas abas de
+abertura ou nas abas de fechamento.</li>
+    <li><b>Intervalo para salvar o banco de dados</b> O intervalo de tempo após o
+qual as abas, os marcadores ou as configurações por arquivo são salvas no
+banco de dados.</li>
+    <li><b>Sincronizar a apresentação </b> Se esta opção estiver ativada nas
+configurações, a tela principal pode ser utilizada para controlar a tela de
+apresentação.</li>
+    <li><b>Tela de apresentação</b> O índice da tela para exibir a tela de
+apresentação.</li>
+    <li><b>Sincronizar a exibição da estrutura de tópicos</b> Se esta opção estiver
+ativada nas configurações, a exibição de estrutura de tópicos destacará a
+primeira entrada apontando para a página atual sempre que a página atual for
+alterada.</li>
+    <li><b>Pulos relativos</b> Se esta opção estiver ativada nas configurações, a
+saída da visualização manterá a sua posição relativa à página visível ao
+pular para outra página.</li>
+    <li><b>Rolagem mínima</b> Se esta opção estiver ativada nas configurações, a
+saída da visualização será rolada apenas se a posição de destino ainda não
+estiver visível.</li>
+    <li><b>Fator de ampliação:</b> O número pelo qual o fator da escala é
+multiplicado e respectivamente dividido após ampliar ou reduzir a
+visualização.</li>
+    <li><b>Cor do destaque</b> Determina a cor dos realces ou destaques ou seleções.</li>
+    <li><b>Duração do destaque</b> Determina a duração dos destaques temporários.</li>
+    <li><b>Cor das anotações:</b> A cor das anotações adicionadas pelo programa
+utilizando as palavras-chave no formato de cores SVG (Scalable Vector
+Graphics) ou no formato da notação hexadecimal '#rrggbb'.</li>
+    <li><b>Editor de código</b> O programa que é iniciado para editar o código
+fonte. O '% 1' é substituído pelo caminho absoluto do arquivo. E '% 2'
+responsável por '% 3' é substituído pela linha e o número da coluna</li>
 </ul>
 
-<h4><a name="graphicssettings">Graphics settings</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="graphicssettings">Configurações gráficas</a> <a
+href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Use tiling</b> Pages will be divided into tiles before rendering and
-caching to reduce memory usage.</li>
-    <li><b>Keep obsolete pixmaps</b> If enabled, then upon change of the zoom
-factor, cached pixmaps will be used to draw approximations of final pixmaps
-until these are available at the cost of increased memory usage.</li>
-    <li><b>Use device pixel ratio</b> If enabled, the highest available device pixel
-ratio is used to render at physical and display at logical resolution.</li>
-    <li><b>Decorate pages</b> Determines whether pages are set apart from the
-background.</li>
-    <li><b>Decorate links</b> Determines whether links are highlighted by red
-frames.</li>
-    <li><b>Decorate form fields</b> Determines whether form fields are highlighted
-by blue frames.</li>
-    <li><b>Background color</b> Determines the color of the background using SVG
-color keywords or hexadecimal notation '#rrggbb'.</li>
-    <li><b>Paper color</b> Determines the color of pages using SVG color keywords or
-hexadecimal notation '#rrggbb'.</li>
-    <li><b>Presentation background color</b> Overrides the paper color in the
-computation of the background color of the presentation view and is defined
-using SVG color keywords or hexadecimal notation '#rrggbb'.</li>
-    <li><b>Pages per row</b> Number of pages per row in the 'multiple pages' layout
-mode.</li>
-    <li><b>Page spacing</b> Determines both vertical and horizontal space displayed
-between pages.</li>
-    <li><b>Thumbnail spacing</b> Determines both vertical and horizontal space
-displayed between thumbnails.</li>
-    <li><b>Thumbnail size</b> Determines the size of the thumbnails.</li>
-    <li><b>Cache size</b> The program will try to cache rendered pages within this
-limit increasing rendering speed at the cost of increased memory usage.</li>
-    <li><b>Prefetch</b> The program will try to render pages that are not yet
-visible increasing rendering speed at the cost of increased cache usage.</li>
-    <li><b>Prefetch distance</b> The number of rows beyond the current row and twice
-the number of rows before the current row that are prefetched.</li>
-    <li><b>PDF settings</b>
+    <li><b>Utilizar lado a lado</b> As páginas serão divididas e posicionadas lado a
+lado (semelhante aos ladrilhos ou mosaico) antes da renderização e do
+armazenamento em cache para reduzir o uso da memória RAM.</li>
+    <li><b>Manter as imagens obsoletas:</b> Se esta opção estiver ativada nas
+configurações, após a alteração do fator de ampliação, as imagens
+armazenadas em cache serão utilizadas para desenhar aproximações das imagens
+finais até que estejam disponíveis com o custo de um maior uso da memória
+RAM.</li>
+    <li><b>Utilizar a taxa de pixels do dispositivo</b> Se esta opção estiver
+ativada nas configurações, a maior taxa de pixels do dispositivo disponível
+é utilizada para renderizar em resolução física e exibir em resolução
+lógica.</li>
+    <li><b>Utilizar o DPI lógico</b> Se esta opção estiver ativada nas
+configurações, a resolução horizontal e vertical do monitor que é informada
+pelo sistema operacional será utilizada para definir um fator de escala de
+100%.</li>
+    <li><b>Decorar as páginas</b> Determina se as páginas são separadas do plano de
+fundo.</li>
+    <li><b>Decorar os links</b> Determina se os links são realçados ou destacados
+com bordas na cor vermelha.</li>
+    <li><b>Decorar os campos do formulário</b> Determina se os campos do formulário
+são realçados ou destacados com bordas na cor azul.</li>
+    <li><b>Cor do plano de fundo</b> Determina a cor do plano de fundo utilizando as
+palavras-chave no formato de cores SVG (Scalable Vector Graphics) ou no
+formato da notação hexadecimal '#rrggbb'.</li>
+    <li><b>Cor do papel</b> Determina a cor das páginas utilizando as palavras-chave
+no formato de cores SVG (Scalable Vector Graphics) ou no formato da notação
+hexadecimal '#rrggbb'.</li>
+    <li><b>Cor do plano de fundo da apresentação</b> Substitui a cor do papel no
+cálculo da cor do plano de fundo da visualização da apresentação e é
+definida utilizando as palavras-chave no formato de cores SVG (Scalable
+Vector Graphics) ou no formato da notação hexadecimal '#rrggbb'.</li>
+    <li><b>Páginas por linha</b> Número de páginas por linha no modo de leiaute de
+'várias páginas'.</li>
+    <li><b>Espaçamento entre as páginas</b> Determina o espaço vertical e horizontal
+exibido entre as páginas.</li>
+    <li><b>Espaçamento entre as miniaturas </b> Determina o espaço vertical e
+horizontal exibido entre as miniaturas.</li>
+    <li><b>Tamanho das miniatura</b> Determina o tamanho das miniaturas.</li>
+    <li><b>Tamanho do cache</b> O programa tentará armazenar em cache as páginas
+renderizadas dentro deste limite, aumentando a velocidade de renderização
+com o custo de um maior uso da memória RAM.</li>
+    <li><b>Pré-busca</b> O programa tentará renderizar as páginas que ainda não são
+visíveis, aumentando a velocidade de renderização com o custo do aumento do
+uso do cache.</li>
+    <li><b>Distância de pré-busca</b> O número de linhas além da linha atual e o
+dobro do número de linhas antes da linha atual que é pré-buscada.</li>
+    <li><b>Configurações do PDF</b>
     <ul>
-        <li><b>Antialiasing</b> Improves display quality at the cost of performance</li>
-        <li><b>Text antialiasing</b> Improves text display quality at the cost of
-performance</li>
-        <li><b>Text hinting</b> May improve text display quality for certain fonts.</li>
-        <li><b>Overprint preview</b> If enabled, a preview of printing one layer of ink
-on top of another is displayed.</li>
-        <li><b>Thin line mode</b> Chooses the optimization used to draw thin lines.</li>
-        <li><b>Backend</b> Chooses the backend used to render pages.</li>
+        <li><b>Antisserrilhamento de imagem</b> Melhora a qualidade da exibição e o
+realismo de imagens suavizando as bordas irregulares em linhas curvas e
+diagonais ao custo de um menor desempenho.</li>
+        <li><b>Antisserrilhamento de texto</b> Melhora a qualidade da exibição do texto
+suavizando as bordas irregulares em linhas curvas e diagonais ao custo de um
+menor desempenho.</li>
+        <li><b>Sugestão de texto</b> Permite melhorar a qualidade da exibição do texto
+para determinadas fontes.</li>
+        <li><b>Visualização de impressão</b> Se esta opção estiver ativada nas
+configurações, uma pré-visualização da impressão de uma camada de cores
+sobre a outra é exibida.</li>
+        <li><b>Modo de linha fina</b> Seleciona a otimização a ser utilizada para
+desenhar linhas finas.</li>
+        <li><b>Infraestrutura:</b> Seleciona o infraestrutura responsável pela parte
+visual que será utilizada para renderizar as páginas.</li>
     </ul>
     </li>
-    <li><b>PS settings</b>
+    <li><b>Configurações do PS</b>
     <ul>
-        <li><b>Graphics antialias bits</b> Determines the amount of antialiasing for
-graphics.</li>
-        <li><b>Text antialias bits</b> Determines the amount of antialiasing for text.</li>
+        <li><b>Bits de suavização de gráficos</b> Determina a quantidade de suavização
+do serrilhamento de gráficos.</li>
+        <li><b>Bits de suavização de gráficos</b> Determina a quantidade de suavização
+do serrilhamento de texto.</li>
     </ul>
     </li>
 </ul>
 
-<h4><a name="interfacesettings">Interface settings</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="interfacesettings">Configurações da Interface</a> <a
+href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Extended search dock</b> If enabled, the default search dock is extended
-by an overview showing the results of all tabs. (Effective after restart.)</li>
-    <li><b>Annotation overlay</b> If enabled, all annotations on a page will be
-displayed as an interactive overlay. Otherwise each annotation will be
-handled as a separate pop-up window.</li>
-    <li><b>Form field overlay</b> If enabled, all form fields on a page will be
-displayed as an interactive overlay. Otherwise each form field will be
-handled as a separate pop-up window.</li>
-    <li><b>Tab position</b> Defines at which edge of the main view tabs will be
-displayed.</li>
-    <li><b>Tab visibility</b> Determines whether tabs will be displayed if less than
-two documents are opened.</li>
-    <li><b>Spread tabs</b> Determines if tabs will be spread out evenly over the
-whole tab bar.</li>
-    <li><b>New tab next to current tab</b> If enabled, new tabs are opened to the
-right of the active tab.</li>
-    <li><b>Exit after last tab</b> If enabled, the application exits after the last
-tab is closed.</li>
-    <li><b>Recently used count</b> Sets the number of files that are listed in the
-recently used menu, if "Track recently used" is enabled. (Effective after
-restart.)</li>
-    <li><b>Recently closed count</b> Sets the number of tabs that are listed in the
-recently closed menu, if "Keep recently closed" is enabled. (Effective after
-restart.)</li>
-    <li><b>File tool bar</b> Defines which actions are visible in the file tool
-bar. Available actions are openInNewTab, open, refresh, saveCopy, saveAs,
-print and separator. (Effective after restart.)</li>
-    <li><b>Edit tool bar</b> Defines which actions are visible in the edit tool
-bar. Available actions are currentPage, previousPage, nextPage, firstPage,
-lastPage, jumpToPage, jumpBackward, jumpForward, search,
-copyToClipboardMode, addAnnotationMode and separator. (Effective after
-restart.)</li>
-    <li><b>View tool bar</b> Defines which actions are visible in the view tool
-bar. Available actions are scaleFactor, zoomIn, zoomOut, continuousMode,
-twoPagesMode, twoPagesWithCoverPageMode, multiplePagesMode, originalSize,
-fitToPageWidthMode, fitToPageSizeMode, rotateLeft, rotateRight, fullscreen,
-presentation and separator. (Effective after restart.)</li>
-    <li><b>Document context menu</b> Defines which actions are visible in the
-document's context menu. Available actions are openCopyInNewTab,
-openCopyInNewWindow, openContainingFolder, moveToInstance, previousPage,
-nextPage, firstPage, lastPage, jumpToPage, jumpBackward, jumpForward,
-setFirstPage, findPrevious, findNext, cancelSearch and separator.</li>
-    <li><b>Tab context menu</b> Defines which actions are visible in a tab's context
-menu. Available actions are openCopyInNewTab, openCopyInNewWindow,
-openContainingFolder, moveToInstance, copyFilePath, selectFilePath,
-closeAllTabs, closeAllTabsButThisOne, closeAllTabsToTheLeft,
-closeAllTabsToTheRight and separator.</li>
-    <li><b>Scrollable menus</b> Will override the default style so that pop-up menus
-scroll instead being laid-out in mutliple columns if they are larger than
-the available screen space. (Effective after restart.)</li>
-    <li><b>Searchable menus</b> Extends the default keyboard navigation of the tabs
-and bookmarks menus by a search-as-you-type mechanism.</li>
-    <li><b>Toggle tool and menu bars with fullscreen</b> Always toggles the
-visibility of the tool and menu bars when toggling fullscreen mode.</li>
-    <li><b>Use page label</b> Determines if document-supplied page label will be
-used instead of page numbers when available.</li>
-    <li><b>Document title as tab title</b> Determines if the tab title as derived
-from the meta-data instead of the file name.</li>
-    <li><b>Current page in window title</b> If enabled, the current page and number
-of pages of the document in the active tab are displayed in the window
-title.</li>
-    <li><b>Instance name in window title</b> If enabled and the current instance is
-named, its name is displayed in the window title.</li>
-    <li><b>Highlight current thumbnail</b> If enabled, the current page is
-highlighted in the thumbnails view.</li>
-    <li><b>Limit thumbnails to results</b> If this option is enabled and a search is
-conducted, only the pages where the search term is found are displayed in
-the thumbnails view.</li>
+    <li><b>Barra de pesquisa estendida</b> Se esta opção estiver ativada nas
+configurações, a doca de pesquisa padrão é estendida por uma visão geral que
+exibe os resultados de todas as abas ou guias. (A ativação ocorrerá após o
+reinício do programa.)</li>
+    <li><b>Sobreposição de anotações</b> Se esta opção estiver ativada nas
+configurações, todas as anotações em uma página serão exibidas como uma
+sobreposição interativa. Caso contrário, cada anotação será tratada como uma
+janela de diálogo separada.</li>
+    <li><b>Sobreposição do campo de formulário</b> Se esta opção estiver ativada nas
+configurações, todos os campos de formulário em uma página serão exibidos
+como uma sobreposição interativa. Caso contrário, cada campo de formulário
+será tratado como uma janela diálogo separada.</li>
+    <li><b>Posição das abas</b> Define em qual borda das abas ou guias da
+visualização principal serão exibidas.</li>
+    <li><b>Visualização das abas</b> Determina se as abas ou guias serão exibidas se
+menos de dois documentos forem abertos.</li>
+    <li><b>Separar as abas</b> Determina se as abas ou guias serão distribuídas
+uniformemente por toda a barra de abas ou guias.</li>
+    <li><b>Nova aba ao lado da aba atual</b> Se esta opção estiver ativada nas
+configurações, as novas abas ou guias são abertas à direita da aba ou guia
+ativa.</li>
+    <li><b>Sair ao fechar a última aba</b> Se esta opção estiver ativada nas
+configurações, o aplicativo sai após a última aba ou guia ser fechada.</li>
+    <li><b>Contagem dos utilizados recentemente</b> Define o número de arquivos
+listados no menu dos utilizados recentemente, se a opção "Rastrear os
+utilizados recentemente" estiver ativada nas configurações. (A ativação
+ocorrerá após o reinício do programa.)</li>
+    <li><b>Listar a quantidade de abas fechadas</b> Define o número de abas ou guias
+listadas no menu fechado recentemente, se a opção "Manter fechada as abas
+recentemente fechadas" estiver ativada nas configurações. (A ativação
+ocorrerá após o reinício do programa.)</li>
+    <li><b>Arquivo da barra de ferramentas</b> Define quais ações são visíveis no
+arquivo da barra de ferramentas. As ações disponíveis são abertas nova aba,
+abrir, atualizar ou recarregar, salvar cópia, salvar como, imprimir e
+separar. (A ativação ocorrerá após o reinício do programa.)</li>
+    <li><b>Editar a barra de ferramentas</b> Define quais ações são visíveis na
+edição da barra de ferramentas. As ações disponíveis são página atual,
+página anterior, próxima página, primeira página, última página, pule a
+página, pule para trás, pule para frente, pesquisar, copiar para o modo de
+área de transferência, adicione o modo de anotação e separador. (A ativação
+ocorrerá após o reinício do programa.)</li>
+    <li><b>Exibir a barra de ferramentas</b> Define quais ações são visíveis na
+exibição da barra de ferramentas. As ações disponíveis são: fator de escala,
+ampliar, reduzir, modo contínuo, modo de duas páginas, duas páginas com o
+modo de página da capa, modo de várias páginas, tamanho original, ajustar ao
+modo de largura da página, ajustar ao modo de tamanho da página, girar para
+a esquerda, girar para a direita, tela cheia, apresentação e separador. (A
+ativação ocorrerá após o reinício do programa.)</li>
+    <li><b>Menu de contexto do documento</b> Define quais ações são visíveis no menu
+de contexto do documento. As ações disponíveis são abrir e copiar uma nova
+aba, abrir e copiar em uma nova janela, abrir a pasta de conteúdo, mover
+para a instância, página anterior, próxima página, primeira página, última
+página, pular para a página, pular para trás, pular para frente, definir a
+primeira página, localizar anterior, localizar próxima, cancelar a pesquisa
+e o separador.</li>
+    <li><b>Menu de contexto da aba</b> Define quais ações são visíveis no menu de
+contexto de uma aba. As ações disponíveis são: abrir e copiar uma novo aba,
+abrir e copiar em uma nova janela, abrir a pasta de conteúdo, mover para a
+instância, copiar o caminho do arquivo, selecionar o caminho do arquivo,
+fechar todas as abas, fechar todas as abas, fechar todas as abas, exceto a
+primeira, fechar todas as abas à esquerda, fechar todas as abas à direita e
+separador.</li>
+    <li><b>Menus roláveis</b> Substitui o estilo padrão, de modo que os menus das
+janelas de diálogos rolem em vez de serem dispostos em várias colunas,
+quando forem maiores que o espaço disponível na tela. (A ativação ocorrerá
+após o reinício do programa.)</li>
+    <li><b>Menus pesquisáveis</b> Estende a navegação padrão do teclado nos menus
+das abas ou guias e nos menus marcadores ou favoritos por um mecanismo de
+pesquisa enquanto você digita.</li>
+    <li><b>Alternar as barras de ferramentas e os menus com a tela cheia</b> Sempre
+alterna a visibilidade das ferramentas e das barras de menus ao alternar
+para o modo de tela cheia.</li>
+    <li><b>Utilizar o rótulo da página</b> Determina se o rótulo da página fornecido
+pelo documento será utilizado em vez dos números das páginas quando estão
+disponíveis.</li>
+    <li><b>Título do documento como título da aba</b> Determina se o título da aba
+ou guia é derivado dos metadados em vez do nome do arquivo.</li>
+    <li><b>Página atual no título da janela</b> Se esta opção estiver ativada nas
+configurações, a página atual e o número das páginas do documento na aba ou
+guia ativa são exibidos no título da janela.</li>
+    <li><b>Nome da instância no título da janela</b> Se esta opção estiver ativada e
+a instância atual for nomeada, o seu nome será exibido no título da janela.</li>
+    <li><b>Destacar a miniatura atual</b> Se esta opção estiver ativada nas
+configurações, a página atual é destacada na visualização de miniaturas.</li>
+    <li><b>Limite de miniaturas para os resultados</b> Se esta opção estiver ativada
+e uma pesquisa for realizada, apenas as páginas em que o termo da pesquisa
+foi encontrado serão exibidas na visualização de miniaturas.</li>
 </ul>
 
-<h4><a name="shortcutsettings">Shortcut settings</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="shortcutsettings">Configurações de atalho</a> <a
+href="#top">&uarr;</a></h4>
 
-<p>The shortcut settings allows the adjustment of keyboard shortcuts to
-personal preference. Shortcuts are changed by double-clicking on the
-shortcut to edit it and entering the new shortcut. Each action can have
-several shortcuts by entering a semicolon-separated list of them. Names of
-keys that are not single letters are written out explicitly (e.g. "Alt",
-"Ctrl", "PgDown"), where the matching is not case sensitive. If the shortcut
-contains modifier keys, the names of the keys are joined by a plus sign and
-modifier keys must be listed first, e.g. "Ctrl+A" or "Ctrl++".</p>
+<p>As configurações de atalho permitem o ajuste dos atalhos do teclado de
+acordo com as preferências pessoais. Os atalhos são alterados clicando duas
+vezes no atalho para editá-lo e inserindo o novo atalho. Cada ação pode ter
+vários atalhos, inserindo uma lista separada por ponto e vírgula. Os nomes
+das teclas que não são letras únicas são gravados explicitamente (por
+exemplo, "Alt", "Ctrl", "PgDown", etc.), onde a correspondência não
+diferencia maiúsculas de minúsculas. Se o atalho contiver teclas
+modificadoras, os nomes das teclas serão unidos por um sinal de adição ou
+mais ' + ' e as teclas modificadoras deverão ser listadas primeiro, por
+exemplo, "Ctrl + A" ou "Ctrl ++".</p>
 
-<h4><a name="modifiersettings">Modifier settings</a> <a href="#top">&uarr;</a></h4>
+<h4><a name="modifiersettings">Configurações do modificador</a> <a
+href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Zoom</b> The keyboard modifiers to zoom using the mouse wheel in the main
-view.</li>
-    <li><b>Rotate</b> The keyboard modifiers to rotate using the mouse wheel in the
-main view.</li>
-    <li><b>Scroll</b> The keyboard modifiers to scroll horizontally using the mouse
-wheel in the main view.</li>
-    <li><b>Copy to clipboard</b> The keyboard modifiers to copy texts or images from
-a page to the clipboard.</li>
-    <li><b>Add annotation</b> The keyboard modifiers to add annotations to a page.</li>
-    <li><b>Zoom to selection</b> The keyboard modifiers to zoom to a slection on a
-page.</li>
+    <li><b>Ampliação</b> Os modificadores do teclado para ampliar ou reduzir a
+visualização utilizando a roda do mouse na tela principal.</li>
+    <li><b>Girar</b> Os modificadores do teclado para girar utilizando a roda do
+mouse na tela principal.</li>
+    <li><b>Rolagem</b> Os modificadores do teclado para rolar horizontalmente
+utilizando a roda do mouse na tela principal.</li>
+    <li><b>Copiar para a área de transferência</b> Os modificadores do teclado para
+copiar os textos ou as imagens de uma página para a área de transferência.</li>
+    <li><b>Adicionar as anotações</b> Os modificadores do teclado para adicionar as
+anotações a uma página.</li>
+    <li><b>Ampliar a seleção</b> Os modificadores do teclado para ampliar ou reduzir
+uma seleção em uma página.</li>
 </ul>
 
 </body>

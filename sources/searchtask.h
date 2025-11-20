@@ -26,13 +26,10 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include <QVector>
 
+#include "model.h"
+
 namespace qpdfview
 {
-
-namespace Model
-{
-class Page;
-}
 
 class SearchTask : public QThread
 {
@@ -81,7 +78,6 @@ private:
 
     void releaseProgress(int value);
     int acquireProgress() const;
-    int loadProgress() const;
 
     template< typename Future >
     void processResults(Future future);
@@ -97,26 +93,50 @@ private:
 
 };
 
-#if QT_VERSION > QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
 
 inline void SearchTask::setCancellation()
 {
-    m_wasCanceled.storeRelease(Canceled);
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+
+    m_wasCanceled.storeRelaxed(Canceled);
+
+#else
+
+    m_wasCanceled.store(Canceled);
+
+#endif // QT_VERSION
 }
 
 inline void SearchTask::resetCancellation()
 {
-    m_wasCanceled.storeRelease(NotCanceled);
+#if QT_VERSION >= QT_VERSION_CHECK(5,14,0)
+
+    m_wasCanceled.storeRelaxed(NotCanceled);
+
+#else
+
+    m_wasCanceled.store(NotCanceled);
+
+#endif // QT_VERSION
 }
 
 inline bool SearchTask::testCancellation()
 {
-    return m_wasCanceled.load() != NotCanceled;
+    return loadCancellation() != NotCanceled;
 }
 
 inline int SearchTask::loadCancellation() const
 {
+#if QT_VERSION > QT_VERSION_CHECK(5,14,0)
+
+    return m_wasCanceled.loadRelaxed();
+
+#else
+
     return m_wasCanceled.load();
+
+#endif // QT_VERSION
 }
 
 inline void SearchTask::releaseProgress(int value)
@@ -129,21 +149,16 @@ inline int SearchTask::acquireProgress() const
     return m_progress.loadAcquire();
 }
 
-inline int SearchTask::loadProgress() const
-{
-    return m_progress.load();
-}
-
 #else
 
 inline void SearchTask::setCancellation()
 {
-    m_wasCanceled.fetchAndStoreRelease(Canceled);
+    m_wasCanceled.fetchAndStoreRelaxed(Canceled);
 }
 
 inline void SearchTask::resetCancellation()
 {
-    m_wasCanceled.fetchAndStoreRelease(NotCanceled);
+    m_wasCanceled.fetchAndStoreRelaxed(NotCanceled);
 }
 
 inline bool SearchTask::testCancellation()
@@ -164,11 +179,6 @@ inline void SearchTask::releaseProgress(int value)
 inline int SearchTask::acquireProgress() const
 {
     return m_progress.fetchAndAddAcquire(0);
-}
-
-inline int SearchTask::loadProgress() const
-{
-    return m_progress;
 }
 
 #endif // QT_VERSION
