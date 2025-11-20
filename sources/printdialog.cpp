@@ -1,6 +1,7 @@
 /*
 
 Copyright 2012-2013 Adam Reichold
+Copyright 2019 Pavel Sanda
 
 This file is part of qpdfview.
 
@@ -40,7 +41,17 @@ QPrinter* PrintDialog::createPrinter()
     const Settings::PrintDialog& settings = Settings::instance()->printDialog();
     printer->setCollateCopies(settings.collateCopies());
     printer->setPageOrder(settings.pageOrder());
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
+
+    printer->setPageOrientation(settings.orientation());
+
+#else
+
     printer->setOrientation(settings.orientation());
+
+#endif // QT_VERSION#
+
     printer->setColorMode(settings.colorMode());
     printer->setDuplex(settings.duplex());
 
@@ -67,6 +78,7 @@ PrintDialog::PrintDialog(QPrinter* printer, QWidget* parent) : QPrintDialog(prin
 #if QT_VERSION < QT_VERSION_CHECK(5,11,0)
 
     m_pageRangesLineEdit = new QLineEdit(this);
+    m_pageRangesLineEdit->setToolTip(tr("e.g. 3-4,7,8,9-11"));
 
     m_printOptionsLayout->addRow(tr("Page ranges:"), m_pageRangesLineEdit);
 
@@ -142,7 +154,17 @@ void PrintDialog::accept()
 
     s_settings->printDialog().setCollateCopies(printer()->collateCopies());
     s_settings->printDialog().setPageOrder(printer()->pageOrder());
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,3,0)
+
+    s_settings->printDialog().setOrientation(printer()->pageLayout().orientation());
+
+#else
+
     s_settings->printDialog().setOrientation(printer()->orientation());
+
+#endif // QT_VERSION
+
     s_settings->printDialog().setColorMode(printer()->colorMode());
     s_settings->printDialog().setDuplex(printer()->duplex());
 

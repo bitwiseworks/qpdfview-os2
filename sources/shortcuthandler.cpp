@@ -25,6 +25,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 
 #include "documentview.h"
+#include "compatibility.h"
 
 namespace
 {
@@ -174,7 +175,7 @@ bool ShortcutHandler::setData(const QModelIndex& index, const QVariant& value, i
 {
     if(role == Qt::EditRole && index.column() == 1 && index.row() >= 0 && index.row() < m_actions.count())
     {
-        QList< QKeySequence > shortcuts = toShortcuts(value.toString().split(";", QString::SkipEmptyParts));
+        const QList< QKeySequence > shortcuts = toShortcuts(value.toString().split(';', SplitBehaviorValues::SkipEmptyParts));
 
         if(!shortcuts.isEmpty() || value.toString().isEmpty())
         {
@@ -187,6 +188,105 @@ bool ShortcutHandler::setData(const QModelIndex& index, const QVariant& value, i
     }
 
     return false;
+}
+
+QKeySequence ShortcutHandler::defaultZoomIn()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::CTRL | Qt::Key_Plus);
+#else
+    return QKeySequence(Qt::CTRL | Qt::Key_Up);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultZoomOut()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::CTRL | Qt::Key_Minus);
+#else
+    return QKeySequence(Qt::CTRL | Qt::Key_Down);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultRotateLeft()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::ALT | Qt::Key_Left);
+#else
+    return QKeySequence(Qt::CTRL | Qt::Key_Left);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultRotateRight()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::ALT | Qt::Key_Right);
+#else
+    return QKeySequence(Qt::CTRL | Qt::Key_Right);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultPreviousPage()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::ALT | Qt::Key_Up);
+#else
+    return QKeySequence(Qt::Key_Backspace);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultNextPage()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::ALT | Qt::Key_Down);
+#else
+    return QKeySequence(Qt::Key_Space);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultJumpToPage()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_G);
+#else
+    return QKeySequence(Qt::CTRL | Qt::Key_J);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultFullscreen()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::CTRL | Qt::META | Qt::Key_F);
+#else
+    return QKeySequence(Qt::Key_F11);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultPresentation()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_F);
+#else
+    return QKeySequence(Qt::Key_F12);
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultPreviousTab()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::META | Qt::SHIFT | Qt::Key_Tab);
+#else
+    return QKeySequence::PreviousChild;
+#endif
+}
+
+QKeySequence ShortcutHandler::defaultNextTab()
+{
+#ifdef Q_OS_MAC
+    return QKeySequence(Qt::META | Qt::Key_Tab);
+#else
+    return QKeySequence::NextChild;
+#endif
 }
 
 bool ShortcutHandler::matchesSkipBackward(const QKeySequence& keySequence) const
@@ -260,27 +360,27 @@ ShortcutHandler::ShortcutHandler(QObject* parent) : QAbstractTableModel(parent),
 {
     m_skipBackwardAction = createAction(
                 tr("Skip backward"), QLatin1String("skipBackward"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_PageUp) << QKeySequence(Qt::KeypadModifier + Qt::Key_PageUp));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_PageUp) << QKeySequence(Qt::KeypadModifier | Qt::Key_PageUp));
 
     m_skipForwardAction = createAction(
                 tr("Skip forward"), QLatin1String("skipForward"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_PageDown) << QKeySequence(Qt::KeypadModifier + Qt::Key_PageDown));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_PageDown) << QKeySequence(Qt::KeypadModifier | Qt::Key_PageDown));
 
     m_moveUpAction = createAction(
                 tr("Move up"), QLatin1String("moveUp"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_Up) << QKeySequence(Qt::KeypadModifier + Qt::Key_Up));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_Up) << QKeySequence(Qt::KeypadModifier | Qt::Key_Up));
 
     m_moveDownAction = createAction(
                 tr("Move down"), QLatin1String("moveDown"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_Down) << QKeySequence(Qt::KeypadModifier + Qt::Key_Down));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_Down) << QKeySequence(Qt::KeypadModifier | Qt::Key_Down));
 
     m_moveLeftAction = createAction(
                 tr("Move left"), QLatin1String("moveLeft"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_Left) << QKeySequence(Qt::KeypadModifier + Qt::Key_Left));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_Left) << QKeySequence(Qt::KeypadModifier | Qt::Key_Left));
 
     m_moveRightAction = createAction(
                 tr("Move right"), QLatin1String("moveRight"),
-                QList< QKeySequence >() << QKeySequence(Qt::Key_Right) << QKeySequence(Qt::KeypadModifier + Qt::Key_Right));
+                QList< QKeySequence >() << QKeySequence(Qt::Key_Right) << QKeySequence(Qt::KeypadModifier | Qt::Key_Right));
 }
 
 QAction* ShortcutHandler::createAction(const QString& text, const QString& objectName, const QList<QKeySequence>& shortcuts)

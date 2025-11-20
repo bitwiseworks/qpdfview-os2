@@ -1,5 +1,6 @@
 /*
 
+Copyright 2020 Johan Björklund
 Copyright 2015 Adam Reichold
 
 This file is part of qpdfview.
@@ -35,7 +36,8 @@ enum RenderFlag
     ConvertToGrayscale = 1 << 1,
     TrimMargins = 1 << 2,
     DarkenWithPaperColor = 1 << 3,
-    LightenWithPaperColor = 1 << 4
+    LightenWithPaperColor = 1 << 4,
+    InvertLightness = 1 << 5
 };
 
 Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
@@ -43,13 +45,12 @@ Q_DECLARE_FLAGS(RenderFlags, RenderFlag)
 class RenderParam
 {
 public:
-    RenderParam(int resolutionX = 72, int resolutionY = 72, qreal devicePixelRatio = 1.0,
-                qreal scaleFactor = 1.0, Rotation rotation = RotateBy0,
-                RenderFlags flags = 0) : d(new SharedData)
+    RenderParam(qreal scaleFactor = 1.0, Rotation rotation = RotateBy0,
+                RenderFlags flags = RenderFlags()) : d(new SharedData)
     {
-        d->resolutionX = resolutionX;
-        d->resolutionY = resolutionY;
-        d->devicePixelRatio = devicePixelRatio;
+        d->resolutionX = 72;
+        d->resolutionY = 72;
+        d->devicePixelRatio = 1.0;
         d->scaleFactor = scaleFactor;
         d->rotation = rotation;
         d->flags = flags;
@@ -89,6 +90,9 @@ public:
     bool invertColors() const { return d->flags.testFlag(InvertColors); }
     void setInvertColors(bool invertColors) { setFlag(InvertColors, invertColors); }
 
+    bool invertLightness() const { return d->flags.testFlag(InvertLightness); }
+    void setInvertLightness(bool invertLightness) { setFlag(InvertLightness, invertLightness); }
+
     bool convertToGrayscale() const { return d->flags.testFlag(ConvertToGrayscale); }
     void setConvertToGrayscale(bool convertToGrayscale) { setFlag(ConvertToGrayscale, convertToGrayscale); }
 
@@ -119,6 +123,8 @@ public:
     }
 
     bool operator!=(const RenderParam& other) const { return !operator==(other); }
+
+    static const RenderParam defaultInstance;
 
 private:
     struct SharedData : public QSharedData

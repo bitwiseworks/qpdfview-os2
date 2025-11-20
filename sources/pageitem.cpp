@@ -1,6 +1,8 @@
 /*
 
-Copyright 2012-2015 Adam Reichold
+Copyright 2021 S. Razi Alavizadeh
+Copyright 2020 Johan Björklund
+Copyright 2012-2015, 2021 Adam Reichold
 
 This file is part of qpdfview.
 
@@ -67,6 +69,19 @@ inline bool modifiersUseMouseButton(Settings* settings, Qt::MouseButton mouseBut
     return ((settings->pageItem().copyToClipboardModifiers() | settings->pageItem().addAnnotationModifiers()) & mouseButton) != 0;
 }
 
+inline void showToolTip(Settings* settings, const QGraphicsSceneHoverEvent* event, const QString& text)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5,2,0)
+
+    QToolTip::showText(event->screenPos(), text, 0, QRect(), settings->documentView().highlightDuration());
+
+#else
+
+    QToolTip::showText(event->screenPos(), text);
+
+#endif // QT_VERSION
+}
+
 } // anonymous
 
 Settings* PageItem::s_settings = 0;
@@ -86,7 +101,7 @@ PageItem::PageItem(Model::Page* page, int index, PaintMode paintMode, QGraphicsI
     m_rubberBand(),
     m_annotationOverlay(),
     m_formFieldOverlay(),
-    m_renderParam(),
+    m_renderParam(RenderParam::defaultInstance),
     m_transform(),
     m_normalizedTransform(),
     m_boundingRect(),
@@ -376,11 +391,11 @@ void PageItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
 
                     if(link->urlOrFileName.isNull())
                     {
-                        QToolTip::showText(event->screenPos(), tr("Go to page %1.").arg(link->page));
+                        showToolTip(s_settings, event, tr("Go to page %1.").arg(link->page));
                     }
                     else
                     {
-                        QToolTip::showText(event->screenPos(), tr("Go to page %1 of file '%2'.").arg(link->page).arg(link->urlOrFileName));
+                        showToolTip(s_settings, event, tr("Go to page %1 of file '%2'.").arg(link->page).arg(link->urlOrFileName));
                     }
 
                     return;
@@ -388,7 +403,7 @@ void PageItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
                 else if(!link->urlOrFileName.isNull() && !presentationMode())
                 {
                     setCursor(Qt::PointingHandCursor);
-                    QToolTip::showText(event->screenPos(), tr("Open '%1'.").arg(link->urlOrFileName));
+                    showToolTip(s_settings, event, tr("Open '%1'.").arg(link->urlOrFileName));
 
                     return;
                 }
@@ -410,7 +425,7 @@ void PageItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
             if(m_normalizedTransform.mapRect(annotation->boundary()).contains(event->pos()))
             {
                 setCursor(Qt::PointingHandCursor);
-                QToolTip::showText(event->screenPos(), annotation->contents());
+                showToolTip(s_settings, event, annotation->contents());
 
                 return;
             }
@@ -423,7 +438,7 @@ void PageItem::hoverMoveEvent(QGraphicsSceneHoverEvent* event)
             if(m_normalizedTransform.mapRect(formField->boundary()).contains(event->pos()))
             {
                 setCursor(Qt::PointingHandCursor);
-                QToolTip::showText(event->screenPos(), tr("Edit form field '%1'.").arg(formField->name()));
+                showToolTip(s_settings, event, tr("Edit form field '%1'.").arg(formField->name()));
 
                 return;
             }
@@ -441,7 +456,7 @@ void PageItem::hoverLeaveEvent(QGraphicsSceneHoverEvent*)
 void PageItem::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
     const bool leftButtonActive = event->button() == Qt::LeftButton;
-    const bool middleButtonActive = event->button() == Qt::MidButton;
+    const bool middleButtonActive = event->button() == Qt::MiddleButton;
     const bool anyButtonActive = leftButtonActive || middleButtonActive;
 
     const bool noModifiersActive = event->modifiers() == Qt::NoModifier;
@@ -573,11 +588,19 @@ void PageItem::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     if(!m_rubberBand.isNull())
     {
-        if(m_boundingRect.contains(event->pos()))
-        {
-            m_rubberBand.setBottomRight(event->pos());
+        const QPointF pos = event->pos();
 
-            update();
+        if(m_boundingRect.contains(pos))
+        {
+            QRectF rubberBand = m_rubberBand;
+            rubberBand.setBottomRight(pos);
+
+            if(!rubberBand.isNull())
+            {
+                m_rubberBand = rubberBand;
+
+                update();
+            }
 
             event->accept();
             return;
@@ -734,7 +757,16 @@ void PageItem::startLoadInteractiveElements()
 
     m_loadInteractiveElements = new QFutureWatcher< void >(this);
     connect(m_loadInteractiveElements, SIGNAL(finished()), SLOT(on_loadInteractiveElements_finished()));
+
+#if QT_VERSION >= QT_VERSION_CHECK(6,0,0)
+
+    m_loadInteractiveElements->setFuture(QtConcurrent::run(std::bind(&PageItem::loadInteractiveElements, this)));
+
+#else
+
     m_loadInteractiveElements->setFuture(QtConcurrent::run(this, &PageItem::loadInteractiveElements));
+
+#endif // QT_VERSION
 }
 
 void PageItem::loadInteractiveElements()
@@ -776,6 +808,7 @@ void PageItem::copyToClipboard(QPoint screenPos)
 
     QAction* copyTextAction = menu.addAction(tr("Copy &text"));
     QAction* selectTextAction = menu.addAction(tr("&Select text"));
+    QAction* appendTextToBookmarkCommentAction = menu.addAction(tr("&Append text to bookmark comment..."));
     const QAction* copyImageAction = menu.addAction(tr("Copy &image"));
     const QAction* saveImageToFileAction = menu.addAction(tr("Save image to &file..."));
 
@@ -783,6 +816,7 @@ void PageItem::copyToClipboard(QPoint screenPos)
 
     copyTextAction->setVisible(!text.isEmpty());
     selectTextAction->setVisible(!text.isEmpty() && QApplication::clipboard()->supportsSelection());
+    appendTextToBookmarkCommentAction->setVisible(!text.isEmpty());
 
     const QAction* action = menu.exec(screenPos);
 
@@ -796,6 +830,10 @@ void PageItem::copyToClipboard(QPoint screenPos)
         {
             QApplication::clipboard()->setText(text, QClipboard::Selection);
         }
+    }
+    else if(action == appendTextToBookmarkCommentAction)
+    {
+        emit appendTextToBookmarkComment(m_index + 1, text);
     }
     else if(action == copyImageAction || action == saveImageToFileAction)
     {
@@ -1175,6 +1213,11 @@ inline void PageItem::paintPage(QPainter* painter, const QRectF& exposedRect) co
         QColor paperColor = s_settings->pageItem().paperColor();
 
         if(m_renderParam.invertColors())
+        {
+            paperColor.setRgb(~paperColor.rgb());
+        }
+
+        if(m_renderParam.invertLightness())
         {
             paperColor.setRgb(~paperColor.rgb());
         }

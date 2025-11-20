@@ -25,7 +25,6 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QApplication>
 #include <QCheckBox>
-#include <QDesktopWidget>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QGroupBox>
@@ -34,12 +33,19 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include <QShortcut>
 #include <QTableView>
 
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+
+#include <QDesktopWidget>
+
+#endif // QT_VERSION
+
 #include "settings.h"
 #include "model.h"
 #include "pluginhandler.h"
 #include "shortcuthandler.h"
 #include "documentview.h"
 #include "miscellaneous.h"
+#include "compatibility.h"
 
 namespace
 {
@@ -278,11 +284,21 @@ void SettingsDialog::createBehaviorTab()
 #endif // WITH_SQL
 
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+
+    const int screenCount = QGuiApplication::screens().count();
+
+#else
+
+    const int screenCount = QApplication::desktop()->screenCount();
+
+#endif // QT_VERSION
+
     m_synchronizePresentationCheckBox = addCheckBox(m_behaviorLayout, tr("Synchronize presentation:"), QString(),
                                                     s_settings->presentationView().synchronize());
 
     m_presentationScreenSpinBox = addSpinBox(m_behaviorLayout, tr("Presentation screen:"), QString(), QString(), tr("Default"),
-                                             -1, QApplication::desktop()->screenCount() - 1, 1, s_settings->presentationView().screen());
+                                             -1, screenCount - 1, 1, s_settings->presentationView().screen());
 
 
     m_synchronizeOutlineViewCheckBox = addCheckBox(m_behaviorLayout, tr("Synchronize outline view:"), QString(),
@@ -291,6 +307,9 @@ void SettingsDialog::createBehaviorTab()
     m_synchronizeSplitViewsCheckBox = addCheckBox(m_behaviorLayout, tr("Synchronize split views:"), QString(),
                                                   s_settings->mainWindow().synchronizeSplitViews());
 
+
+    m_relativeJumpsCheckBox = addCheckBox(m_behaviorLayout, tr("Relative jumps:"), QString(),
+                                          s_settings->documentView().relativeJumps());
 
     m_minimalScrollingCheckBox = addCheckBox(m_behaviorLayout, tr("Minimal scrolling:"), QString(),
                                              s_settings->documentView().minimalScrolling());
@@ -336,6 +355,7 @@ void SettingsDialog::acceptBehaivorTab()
     s_settings->mainWindow().setSynchronizeOutlineView(m_synchronizeOutlineViewCheckBox->isChecked());
     s_settings->mainWindow().setSynchronizeSplitViews(m_synchronizeSplitViewsCheckBox->isChecked());
 
+    s_settings->documentView().setRelativeJumps(m_relativeJumpsCheckBox->isChecked());
     s_settings->documentView().setMinimalScrolling(m_minimalScrollingCheckBox->isChecked());
     s_settings->documentView().setZoomFactor(m_zoomFactorSpinBox->value());
     s_settings->documentView().setParallelSearchExecution(m_parallelSearchExecutionCheckBox->isChecked());
@@ -367,6 +387,7 @@ void SettingsDialog::resetBehaviorTab()
     m_synchronizeOutlineViewCheckBox->setChecked(Defaults::MainWindow::synchronizeOutlineView());
     m_synchronizeSplitViewsCheckBox->setChecked(Defaults::MainWindow::synchronizeSplitViews());
 
+    m_relativeJumpsCheckBox->setChecked(Defaults::DocumentView::relativeJumps());
     m_minimalScrollingCheckBox->setChecked(Defaults::DocumentView::minimalScrolling());
     m_zoomFactorSpinBox->setValue(Defaults::DocumentView::zoomFactor());
     m_parallelSearchExecutionCheckBox->setChecked(Defaults::DocumentView::parallelSearchExecution());
@@ -394,6 +415,9 @@ void SettingsDialog::createGraphicsTab()
     m_useDevicePixelRatioCheckBox->setEnabled(false);
 
 #endif // QT_VERSION
+
+    m_useLogicalDpiCheckBox = addCheckBox(m_graphicsLayout, tr("Use logical DPI:"), QString(),
+                                          s_settings->pageItem().useLogicalDpi());
 
 
     m_decoratePagesCheckBox = addCheckBox(m_graphicsLayout, tr("Decorate pages:"), QString(),
@@ -446,6 +470,7 @@ void SettingsDialog::acceptGraphicsTab()
     s_settings->pageItem().setUseTiling(m_useTilingCheckBox->isChecked());
     s_settings->pageItem().setKeepObsoletePixmaps(m_keepObsoletePixmapsCheckBox->isChecked());
     s_settings->pageItem().setUseDevicePixelRatio(m_useDevicePixelRatioCheckBox->isChecked());
+    s_settings->pageItem().setUseLogicalDpi(m_useLogicalDpiCheckBox->isChecked());
 
     s_settings->pageItem().setDecoratePages(m_decoratePagesCheckBox->isChecked());
     s_settings->pageItem().setDecorateLinks(m_decorateLinksCheckBox->isChecked());
@@ -487,6 +512,7 @@ void SettingsDialog::resetGraphicsTab()
     m_useTilingCheckBox->setChecked(Defaults::PageItem::useTiling());
     m_keepObsoletePixmapsCheckBox->setChecked(Defaults::PageItem::keepObsoletePixmaps());
     m_useDevicePixelRatioCheckBox->setChecked(Defaults::PageItem::useDevicePixelRatio());
+    m_useLogicalDpiCheckBox->setChecked(Defaults::PageItem::useLogicalDpi());
 
     m_decoratePagesCheckBox->setChecked(Defaults::PageItem::decoratePages());
     m_decorateLinksCheckBox->setChecked(Defaults::PageItem::decorateLinks());
@@ -627,12 +653,12 @@ void SettingsDialog::acceptInterfaceTab()
     s_settings->mainWindow().setRecentlyUsedCount(m_recentlyUsedCountSpinBox->value());
     s_settings->mainWindow().setRecentlyClosedCount(m_recentlyClosedCountSpinBox->value());
 
-    s_settings->mainWindow().setFileToolBar(m_fileToolBarLineEdit->text().split(",", QString::SkipEmptyParts));
-    s_settings->mainWindow().setEditToolBar(m_editToolBarLineEdit->text().split(",", QString::SkipEmptyParts));
-    s_settings->mainWindow().setViewToolBar(m_viewToolBarLineEdit->text().split(",", QString::SkipEmptyParts));
+    s_settings->mainWindow().setFileToolBar(m_fileToolBarLineEdit->text().split(',', SplitBehaviorValues::SkipEmptyParts));
+    s_settings->mainWindow().setEditToolBar(m_editToolBarLineEdit->text().split(',', SplitBehaviorValues::SkipEmptyParts));
+    s_settings->mainWindow().setViewToolBar(m_viewToolBarLineEdit->text().split(',', SplitBehaviorValues::SkipEmptyParts));
 
-    s_settings->mainWindow().setDocumentContextMenu(m_documentContextMenuLineEdit->text().split(",", QString::SkipEmptyParts));
-    s_settings->mainWindow().setTabContextMenu(m_tabContextMenuLineEdit->text().split(",", QString::SkipEmptyParts));
+    s_settings->mainWindow().setDocumentContextMenu(m_documentContextMenuLineEdit->text().split(',', SplitBehaviorValues::SkipEmptyParts));
+    s_settings->mainWindow().setTabContextMenu(m_tabContextMenuLineEdit->text().split(',', SplitBehaviorValues::SkipEmptyParts));
 
     s_settings->mainWindow().setScrollableMenus(m_scrollableMenusCheckBox->isChecked());
     s_settings->mainWindow().setSearchableMenus(m_searchableMenusCheckBox->isChecked());
@@ -864,7 +890,7 @@ QComboBox* SettingsDialog::addModifiersComboBox(QFormLayout* layout, const QStri
     comboBox->addItem(QShortcut::tr("Shift and Alt"), static_cast< int >(Qt::ShiftModifier | Qt::AltModifier));
     comboBox->addItem(QShortcut::tr("Ctrl and Alt"), static_cast< int >(Qt::ControlModifier | Qt::AltModifier));
     comboBox->addItem(QShortcut::tr("Right mouse button"), static_cast< int >(Qt::RightButton));
-    comboBox->addItem(QShortcut::tr("Middle mouse button"), static_cast< int >(Qt::MidButton));
+    comboBox->addItem(QShortcut::tr("Middle mouse button"), static_cast< int >(Qt::MiddleButton));
     comboBox->addItem(QShortcut::tr("None"), static_cast< int >(Qt::NoModifier));
 
     setCurrentIndexFromKeyboardModifiers(comboBox, modifiers);

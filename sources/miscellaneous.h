@@ -321,7 +321,7 @@ private:
 int getMappedNumber(MappingSpinBox::TextValueMapper* mapper,
                     QWidget* parent, const QString& title, const QString& caption,
                     int value = 0, int min = -2147483647, int max = 2147483647,
-                    bool* ok = 0, Qt::WindowFlags flags = 0);
+                    bool* ok = 0, Qt::WindowFlags flags = Qt::WindowFlags());
 
 // progress line edit
 
@@ -418,6 +418,22 @@ inline QIcon loadIconWithFallback(const QString& name)
 
     return icon;
 }
+
+inline void setVisibleIcon(QAction* action, const QIcon& icon, bool visible = true)
+{
+    action->setIcon(icon);
+
+#ifndef Q_OS_MAC
+
+    if(visible)
+    {
+        action->setIconVisibleInMenu(true);
+    }
+
+#endif // Q_OS_MAC
+}
+
+// open in new window
 
 void openInNewWindow(const QString& filePath, int page);
 

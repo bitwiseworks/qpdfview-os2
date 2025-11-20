@@ -21,6 +21,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "recentlyusedmenu.h"
 
+#include <QActionGroup>
 #include <QFileInfo>
 
 namespace qpdfview
@@ -30,8 +31,7 @@ RecentlyUsedMenu::RecentlyUsedMenu(const QStringList& absoluteFilePaths, int cou
     m_count(count)
 {
     menuAction()->setText(tr("Recently &used"));
-    menuAction()->setIcon(QIcon::fromTheme("document-open-recent"));
-    menuAction()->setIconVisibleInMenu(true);
+    setVisibleIcon(menuAction(), QIcon::fromTheme("document-open-recent"));
 
     m_openActionGroup = new QActionGroup(this);
     connect(m_openActionGroup, SIGNAL(triggered(QAction*)), SLOT(on_open_triggered(QAction*)));

@@ -1,6 +1,7 @@
 /*
 
 Copyright 2015 S. Razi Alavizadeh
+Copyright 2020 Johan Björklund
 Copyright 2012-2015, 2018 Adam Reichold
 Copyright 2012 Alexander Volkov
 
@@ -34,6 +35,7 @@ class QSettings;
 
 #include "global.h"
 #include "printoptions.h"
+#include "compatibility.h"
 
 namespace qpdfview
 {
@@ -72,6 +74,9 @@ public:
 
         bool useDevicePixelRatio() const { return m_useDevicePixelRatio; }
         void setUseDevicePixelRatio(bool useDevicePixelRatio);
+
+        bool useLogicalDpi() const { return m_useLogicalDpi; }
+        void setUseLogicalDpi(bool useLogicalDpi);
 
         bool decoratePages() const { return m_decoratePages; }
         void setDecoratePages(bool decoratePages);
@@ -128,6 +133,7 @@ public:
 
         bool m_keepObsoletePixmaps;
         bool m_useDevicePixelRatio;
+        bool m_useLogicalDpi;
 
         bool m_decoratePages;
         bool m_decorateLinks;
@@ -187,6 +193,9 @@ public:
 
         int pagesPerRow() const { return m_pagesPerRow; }
         void setPagesPerRow(int pagesPerRow);
+
+        bool relativeJumps() const { return m_relativeJumps; }
+        void setRelativeJumps(bool relativeJumps);
 
         bool minimalScrolling() const { return m_minimalScrolling; }
         void setMinimalScrolling(bool minimalScrolling);
@@ -259,6 +268,9 @@ public:
         bool invertColors() const;
         void setInvertColors(bool invertColors);
 
+        bool invertLightness() const;
+        void setInvertLightness(bool invertLightness);
+
         bool convertToGrayscale() const;
         void setConvertToGrayscale(bool convertToGrayscale);
 
@@ -282,6 +294,7 @@ public:
 
         int m_pagesPerRow;
 
+        bool m_relativeJumps;
         bool m_minimalScrolling;
 
         bool m_highlightCurrentThumbnail;
@@ -437,8 +450,8 @@ public:
         QPrinter::PageOrder pageOrder() const;
         void setPageOrder(QPrinter::PageOrder pageOrder);
 
-        QPrinter::Orientation orientation() const;
-        void setOrientation(QPrinter::Orientation orientation);
+        PageOrientation orientation() const;
+        void setOrientation(PageOrientation orientation);
 
         QPrinter::ColorMode colorMode() const;
         void setColorMode(QPrinter::ColorMode colorMode);
@@ -509,6 +522,7 @@ public:
 
         static bool keepObsoletePixmaps() { return false; }
         static bool useDevicePixelRatio() { return false; }
+        static bool useLogicalDpi() { return true; }
 
         static bool decoratePages() { return true; }
         static bool decorateLinks() { return true; }
@@ -562,6 +576,7 @@ public:
 
         static int pagesPerRow() { return 3; }
 
+        static bool relativeJumps() { return true; }
         static bool minimalScrolling() { return false; }
 
         static bool highlightCurrentThumbnail() { return false; }
@@ -601,6 +616,7 @@ public:
         static Rotation rotation() { return RotateBy0; }
 
         static bool invertColors() { return false; }
+        static bool invertLightness() { return false; }
         static bool convertToGrayscale() { return false; }
         static bool trimMargins() { return false; }
 
@@ -674,7 +690,7 @@ public:
 
         static QPrinter::PageOrder pageOrder() { return QPrinter::FirstPageFirst; }
 
-        static QPrinter::Orientation orientation() { return QPrinter::Portrait; }
+        static PageOrientation orientation() { return PageOrientationValues::Portrait; }
 
         static QPrinter::ColorMode colorMode() { return QPrinter::Color; }
 

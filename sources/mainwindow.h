@@ -1,7 +1,8 @@
 /*
 
-Copyright 2014 S. Razi Alavizadeh
-Copyright 2012-2018 Adam Reichold
+Copyright 2014, 2021 S. Razi Alavizadeh
+Copyright 2020 Johan Björklund
+Copyright 2012-2018, 2021 Adam Reichold
 Copyright 2018 Pavel Sanda
 Copyright 2012 Michał Trybus
 Copyright 2012 Alexander Volkov
@@ -49,13 +50,12 @@ class QToolButton;
 class QTreeView;
 class QWidgetAction;
 
-#include "renderparam.h"
+#include "documentview.h"
 
 namespace qpdfview
 {
 
 class Settings;
-class DocumentView;
 class TabWidget;
 class TreeView;
 class ComboBox;
@@ -118,9 +118,12 @@ protected slots:
     void on_currentTab_linkClicked(int page);
     void on_currentTab_linkClicked(bool newTab, const QString& filePath, int page);
 
+    void on_currentTab_appendTextToBookmarkComment(int page, const QString& text);
+
     void on_currentTab_renderFlagsChanged(qpdfview::RenderFlags renderFlags);
 
     void on_currentTab_invertColorsChanged(bool invertColors);
+    void on_currentTab_invertLightnessChanged(bool invertLightness);
     void on_currentTab_convertToGrayscaleChanged(bool convertToGrayscale);
     void on_currentTab_trimMarginsChanged(bool trimMargins);
 
@@ -163,6 +166,7 @@ protected slots:
     void on_saveAs_triggered();
     void on_saveCopy_triggered();
     void on_print_triggered();
+    void on_email_triggered();
 
     void on_recentlyUsed_openTriggered(const QString& filePath);
 
@@ -206,6 +210,7 @@ protected slots:
     void on_rotateRight_triggered();
 
     void on_invertColors_triggered(bool checked);
+    void on_invertLightness_triggered(bool checked);
     void on_convertToGrayscale_triggered(bool checked);
     void on_trimMargins_triggered(bool checked);
     void on_darkenWithPaperColor_triggered(bool checked);
@@ -323,6 +328,8 @@ private:
     void setWindowTitleForCurrentTab();
     void setCurrentPageSuffixForCurrentTab();
 
+    void addBookmark(int page, const QString& appendToComment = QString());
+
     BookmarkModel* bookmarkModelForCurrentTab(bool create = false);
 
     QAction* sourceLinkActionForCurrentTab(QObject* parent, QPoint pos);
@@ -363,6 +370,7 @@ private:
     QAction* m_saveAsAction;
     QAction* m_saveCopyAction;
     QAction* m_printAction;
+    QAction* m_emailAction;
     QAction* m_exitAction;
 
     QAction* m_previousPageAction;
@@ -405,6 +413,7 @@ private:
     QAction* m_rotateRightAction;
 
     QAction* m_invertColorsAction;
+    QAction* m_invertLightnessAction;
     QAction* m_convertToGrayscaleAction;
     QAction* m_trimMarginsAction;
     QAction* m_darkenWithPaperColorAction;
@@ -560,6 +569,7 @@ public slots:
     Q_NOREPLY void fitToPageSizeMode(bool checked);
 
     Q_NOREPLY void invertColors(bool checked);
+    Q_NOREPLY void invertLightness(bool checked);
     Q_NOREPLY void convertToGrayscale(bool checked);
     Q_NOREPLY void trimMargins(bool checked);
 
@@ -572,6 +582,8 @@ public slots:
     Q_NOREPLY void closeAllTabsButCurrentTab();
 
     bool closeTab(const QString& absoluteFilePath);
+
+    Q_NOREPLY void exit();
 
 private:
     MainWindow* mainWindow() const;

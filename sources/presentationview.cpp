@@ -1,5 +1,6 @@
 /*
 
+Copyright 2020 Johan Björklund
 Copyright 2012-2013 Adam Reichold
 
 This file is part of qpdfview.
@@ -29,6 +30,7 @@ along with qpdfview.  If not, see <http://www.gnu.org/licenses/>.
 #include "model.h"
 #include "pageitem.h"
 #include "documentview.h"
+#include "compatibility.h"
 
 namespace
 {
@@ -59,7 +61,7 @@ PresentationView::PresentationView(const QVector< Model::Page* >& pages, QWidget
     m_scaleMode(FitToPageSizeMode),
     m_scaleFactor(1.0),
     m_rotation(RotateBy0),
-    m_renderFlags(0),
+    m_renderFlags(),
     m_pageItems()
 {
     if(s_settings == 0)
@@ -172,7 +174,7 @@ void PresentationView::setRenderFlags(qpdfview::RenderFlags renderFlags)
         prepareScene();
         prepareView();
 
-        if(changedFlags.testFlag(InvertColors))
+        if(changedFlags.testFlag(InvertColors) || changedFlags.testFlag(InvertLightness))
         {
             prepareBackground();
         }
@@ -389,7 +391,7 @@ void PresentationView::resizeEvent(QResizeEvent* event)
 
 void PresentationView::keyPressEvent(QKeyEvent* event)
 {
-    switch(event->modifiers() + event->key())
+    switch(event->modifiers() | event->key())
     {
     case Qt::Key_PageUp:
     case Qt::Key_Up:
@@ -417,62 +419,67 @@ void PresentationView::keyPressEvent(QKeyEvent* event)
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_Return:
+    case Qt::CTRL | Qt::Key_Return:
         jumpBackward();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::SHIFT + Qt::Key_Return:
+    case Qt::CTRL | Qt::SHIFT | Qt::Key_Return:
         jumpForward();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_0:
+    case Qt::CTRL | Qt::Key_0:
         originalSize();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_9:
+    case Qt::CTRL | Qt::Key_9:
         setScaleMode(FitToPageWidthMode);
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_8:
+    case Qt::CTRL | Qt::Key_8:
         setScaleMode(FitToPageSizeMode);
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_Up:
+    case Qt::CTRL | Qt::Key_Up:
         zoomIn();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_Down:
+    case Qt::CTRL | Qt::Key_Down:
         zoomOut();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_Left:
+    case Qt::CTRL | Qt::Key_Left:
         rotateLeft();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_Right:
+    case Qt::CTRL | Qt::Key_Right:
         rotateRight();
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_I:
+    case Qt::CTRL | Qt::Key_I:
         setRenderFlags(renderFlags() ^ InvertColors);
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::Key_U:
+    case Qt::CTRL | Qt::SHIFT | Qt::Key_I:
+        setRenderFlags(renderFlags() ^ InvertLightness);
+
+        event->accept();
+        return;
+    case Qt::CTRL | Qt::Key_U:
         setRenderFlags(renderFlags() ^ ConvertToGrayscale);
 
         event->accept();
         return;
-    case Qt::CTRL + Qt::SHIFT + Qt::Key_U:
+    case Qt::CTRL | Qt::SHIFT | Qt::Key_U:
         setRenderFlags(renderFlags() ^ TrimMargins);
 
         event->accept();
@@ -490,9 +497,11 @@ void PresentationView::keyPressEvent(QKeyEvent* event)
 
 void PresentationView::wheelEvent(QWheelEvent* event)
 {
+    const bool forward = rotatedForward(event);
+
     if(event->modifiers() == s_settings->documentView().zoomModifiers())
     {
-        if(event->delta() > 0)
+        if(forward)
         {
             zoomIn();
         }
@@ -506,7 +515,7 @@ void PresentationView::wheelEvent(QWheelEvent* event)
     }
     else if(event->modifiers() == s_settings->documentView().rotateModifiers())
     {
-        if(event->delta() > 0)
+        if(forward)
         {
             rotateLeft();
         }
@@ -520,14 +529,14 @@ void PresentationView::wheelEvent(QWheelEvent* event)
     }
     else if(event->modifiers() == Qt::NoModifier)
     {
-        if(event->delta() > 0 && m_currentPage != 1)
+        if(forward && m_currentPage != 1)
         {
             previousPage();
 
             event->accept();
             return;
         }
-        else if(event->delta() < 0 && m_currentPage != m_pages.count())
+        else if(!forward && m_currentPage != m_pages.count())
         {
             nextPage();
 
@@ -568,13 +577,17 @@ void PresentationView::prepareBackground()
         backgroundColor.setRgb(~backgroundColor.rgb());
     }
 
+    if(m_renderFlags.testFlag(InvertLightness))
+    {
+        backgroundColor.setRgb(~backgroundColor.rgb());
+    }
+    
     scene()->setBackgroundBrush(QBrush(backgroundColor));
 }
 
 void PresentationView::prepareScene()
 {
-    RenderParam renderParam(logicalDpiX(), logicalDpiY(), 1.0,
-                            scaleFactor(), rotation(), renderFlags());
+    RenderParam renderParam(scaleFactor(), rotation(), renderFlags());
 
 #if QT_VERSION >= QT_VERSION_CHECK(5,1,0)
 
@@ -592,6 +605,11 @@ void PresentationView::prepareScene()
     }
 
 #endif // QT_VERSION
+
+    if(s_settings->pageItem().useLogicalDpi())
+    {
+        renderParam.setResolution(logicalDpiX(), logicalDpiY());
+    }
 
     const qreal visibleWidth = viewport()->width();
     const qreal visibleHeight = viewport()->height();

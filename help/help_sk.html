@@ -38,7 +38,7 @@ This file is additionally licensed under the Creative Commons Attribution-ShareA
 
 <h4>Obsah</h4>
 <ol>
-    <li>Hlavné menu</li>
+    <li><a href="#mainmenu">Hlavné menu</a></li>
     <ol>
         <li><a href="#file">Súbor</a></li>
         <li><a href="#edit">Upraviť</a></li>
@@ -73,10 +73,10 @@ možnostiam príkazového riadka a k súborom s nastavením.</p>
 <h4><a name="file">Súbor</a> <a href="#top">&uarr;</a></h4>
 
 <ul>
-    <li><b>Open...</b> Opens a dialog to choose a file to open in the current
-tab. If there is no tab, the file is opened in a new tab.</li>
-    <li><b>Open in new tab...</b> Opens a dialog to choose files to open in new
-tabs.</li>
+    <li><b>Otvoriť...</b> Otovorí dialóg na otvorenie súboru v aktuálnej karte. Ak
+nie je otvorená žiadna karta, automaticky sa otvorí nová.</li>
+    <li><b>Otvoriť v novej karte...</b> Otvorí dialóg na otvorenie súborov v nových
+kartách.</li>
     <li><b>Recently used</b> Contains a list of the most recently used files (if
 enabled in the settings).</li>
     <li><b>Refresh</b> Reloads the file displayed in the current tab.</li>
@@ -86,9 +86,9 @@ displayed in the current tab.</li>
 tab including changes to annotations and form fields.</li>
     <li><b>Save copy...</b> Opens a dialog to save an umodified copy of the file
 displayed in the current tab.</li>
-    <li><b>Print...</b> Opens a dialog to print the file displayed in the current
-tab.</li>
-    <li><b>Exit</b> Closes all tabs and ends the program.</li>
+    <li><b>Tlačiť...</b> Otvorí dialóg na vytlačenie súboru v aktuálne otvorenej
+karte.</li>
+    <li><b>Ukončiť</b> Zatvorí všetky karty a ukončí program.</li>
 </ul>
 
 <h4><a name="edit">Upraviť</a> <a href="#top">&uarr;</a></h4>
@@ -106,8 +106,8 @@ is manually started by pressing the return key. If the Shift modifier is
 held when the return key is pressed, the search starts in all tabs instead
 of just the current tab. (This effect is reversed if the extended search
 dock is enabled in the settings.)</li>
-    <li><b>Find previous/next</b> Jumps to the previous/next occurrence of the
-search term in the document.</li>
+    <li><b>Nájsť predchodzie/ďaľšie</b> Skočí na predchodí/nasledujúci výskyt
+hľadaného výrazu v dokumente.</li>
     <li><b>Cancel search</b> Cancels the currently running search and closes the
 search dock.</li>
     <li><b>Copy to clipboard</b> If checked, the program will wait for a frame to be
@@ -330,6 +330,8 @@ presentation view on.</li>
     <li><b>Synchronize outline view</b> If enabled, the outline view will highlight
 the first entry pointing to the current page whenever the current page
 changes.</li>
+    <li><b>Relative jumps</b> If enable, the view port will keep its position
+relative to the visible page when jumping to another page.</li>
     <li><b>Minimal scrolling</b> If enabled, the view port will only be scrolled if
 the target position is not yet visible.</li>
     <li><b>Zoom factor</b> The number by which the scale factor is multiplied
@@ -353,6 +355,9 @@ factor, cached pixmaps will be used to draw approximations of final pixmaps
 until these are available at the cost of increased memory usage.</li>
     <li><b>Use device pixel ratio</b> If enabled, the highest available device pixel
 ratio is used to render at physical and display at logical resolution.</li>
+    <li><b>Use logical DPI</b> If enabled, the horizontal and vertical resolution of
+the monitor as reported by the operating system is used to define a scale
+factor of 100%.</li>
     <li><b>Decorate pages</b> Determines whether pages are set apart from the
 background.</li>
     <li><b>Decorate links</b> Determines whether links are highlighted by red
